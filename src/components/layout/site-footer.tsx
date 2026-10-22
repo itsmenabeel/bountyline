@@ -5,7 +5,7 @@ import { FOOTER_NAV, SITE_NAME } from "@/lib/site";
 export function SiteFooter() {
   return (
     <footer className="border-t bg-card">
-      <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1.5fr_repeat(3,1fr)] md:px-6 lg:px-8">
+      <div className="mx-auto grid w-full max-w-page gap-10 px-4 py-12 md:grid-cols-[1.5fr_repeat(3,1fr)] md:px-6 lg:px-8">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2 font-semibold">
             <LogoMark className="size-6" />
@@ -40,7 +40,7 @@ export function SiteFooter() {
         ))}
       </div>
       <div className="border-t">
-        <p className="mx-auto w-full max-w-6xl px-4 py-5 text-xs text-muted-foreground md:px-6 lg:px-8">
+        <p className="mx-auto w-full max-w-page px-4 py-5 text-xs text-muted-foreground md:px-6 lg:px-8">
           © {SITE_NAME}. Payments run through Stripe in test mode, so no real
           card gets charged.
         </p>

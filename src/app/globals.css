@@ -72,6 +72,14 @@
   --shadow-overlay: var(--overlay-shadow);
 }
 
+/* Layout widths. One token per shell, so every page in a shell lines up and a change is one edit. */
+@theme {
+  /* Public site: header, footer, and page sections (1408px). */
+  --container-page: 88rem;
+  /* Dashboard content beside the sidebar (1920px); tables use nearly the full screen. */
+  --container-dashboard: 120rem;
+}
+
 :root {
   color-scheme: light;
 

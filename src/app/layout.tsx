@@ -19,7 +19,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bountyline",
+  title: { default: "Bountyline", template: "%s · Bountyline" },
   description: "Bug reports, triaged and paid from one funded pool.",
 };
 
