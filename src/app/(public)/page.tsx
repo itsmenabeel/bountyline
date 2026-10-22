@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-4 px-4 py-24">
+    <section className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-4 px-4 py-24">
       <p className="font-mono text-xs font-medium tracking-wide text-muted-foreground uppercase">
         Bug bounty and disclosure
       </p>
@@ -11,6 +11,6 @@ export default function Home() {
         Companies fund a bounty pool through Stripe. Researchers report what
         they find, and our triage team pays valid reports from that pool.
       </p>
-    </main>
+    </section>
   );
 }
