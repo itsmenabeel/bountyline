@@ -13,6 +13,7 @@ const email = z
   .string()
   .trim()
   .toLowerCase()
+  .min(1, "Enter your email address.")
   .pipe(
     z
       .email("Enter a valid email address.")

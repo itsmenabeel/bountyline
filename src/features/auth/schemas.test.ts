@@ -27,6 +27,15 @@ describe("loginSchema", () => {
     ).toBe(" pass ");
   });
 
+  it("asks for an email when the field is empty or only spaces", () => {
+    for (const email of ["", "   "]) {
+      const result = loginSchema.safeParse({ email, password: "x" });
+      expect(result.error?.issues.map((issue) => issue.message)).toEqual([
+        "Enter your email address.",
+      ]);
+    }
+  });
+
   it("rejects a malformed email and one over 254 characters", () => {
     expect(
       loginSchema.safeParse({ email: "not-an-email", password: "x" }).success,
