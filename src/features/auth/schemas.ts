@@ -9,6 +9,29 @@ export type SignupRole = (typeof SIGNUP_ROLES)[number];
 export const PASSWORD_MIN = 8;
 export const PASSWORD_MAX = 72;
 
+const HAS_LETTER = /[A-Za-z]/;
+const HAS_DIGIT = /\d/;
+
+/** The live checklist under the sign-up password field. Same rules as `registerSchema`. */
+export const PASSWORD_RULES = [
+  {
+    id: "length",
+    label: `${PASSWORD_MIN} to ${PASSWORD_MAX} characters`,
+    test: (value: string) =>
+      value.length >= PASSWORD_MIN && value.length <= PASSWORD_MAX,
+  },
+  {
+    id: "letter",
+    label: "A letter",
+    test: (value: string) => HAS_LETTER.test(value),
+  },
+  {
+    id: "number",
+    label: "A number",
+    test: (value: string) => HAS_DIGIT.test(value),
+  },
+] as const;
+
 const email = z
   .string()
   .trim()
@@ -29,15 +52,17 @@ export const registerSchema = z.object({
   name: z
     .string()
     .trim()
+    .min(1, { error: "Enter your name.", abort: true })
     .min(2, "Enter at least 2 characters.")
     .max(100, "Use 100 characters or fewer."),
   email,
   password: z
     .string()
+    .min(1, { error: "Create a password.", abort: true })
     .min(PASSWORD_MIN, `Use at least ${PASSWORD_MIN} characters.`)
     .max(PASSWORD_MAX, `Use ${PASSWORD_MAX} characters or fewer.`)
-    .regex(/[A-Za-z]/, "Add at least one letter.")
-    .regex(/\d/, "Add at least one number."),
+    .regex(HAS_LETTER, "Add at least one letter.")
+    .regex(HAS_DIGIT, "Add at least one number."),
   role: z.enum(SIGNUP_ROLES, "Pick a role."),
 });
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loginSchema, registerSchema } from "./schemas";
+import { loginSchema, PASSWORD_RULES, registerSchema } from "./schemas";
 
 const validRegister = {
   name: "Riley Researcher",
@@ -104,5 +104,38 @@ describe("registerSchema", () => {
     expect(
       registerSchema.safeParse({ ...validRegister, role: undefined }).success,
     ).toBe(false);
+  });
+});
+
+describe("registerSchema empty fields", () => {
+  it("names the missing field instead of a length rule", () => {
+    expect(
+      firstMessage(registerSchema.safeParse({ ...validRegister, name: "  " })),
+    ).toBe("Enter your name.");
+    expect(
+      firstMessage(
+        registerSchema.safeParse({ ...validRegister, password: "" }),
+      ),
+    ).toBe("Create a password.");
+  });
+});
+
+describe("PASSWORD_RULES", () => {
+  it.each([
+    "",
+    "a",
+    "abcdefg1",
+    "12345678",
+    "abcdefgh",
+    "pass word 9",
+    `a1${"x".repeat(70)}`,
+    `a1${"x".repeat(71)}`,
+  ])("agrees with registerSchema on %j", (password) => {
+    const allRulesMet = PASSWORD_RULES.every((rule) => rule.test(password));
+    const schemaAccepts = registerSchema.safeParse({
+      ...validRegister,
+      password,
+    }).success;
+    expect(allRulesMet).toBe(schemaAccepts);
   });
 });

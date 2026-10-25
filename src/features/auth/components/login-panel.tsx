@@ -7,7 +7,6 @@ import {
   type LucideIcon,
   ShieldCheckIcon,
 } from "lucide-react";
-import Link from "next/link";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ColdStartHint } from "@/components/shared/cold-start-hint";
@@ -21,13 +20,14 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
 import type { Role } from "@/types/api";
 import { demoLogin, login } from "../actions";
 import { loginSchema } from "../schemas";
 import { useAuthAction } from "../use-auth-action";
+import { AuthSwitch } from "./auth-switch";
 import { type Failure, FailureAlert } from "./failure-alert";
 import { PasswordInput } from "./password-input";
+import { PendingLabel } from "./pending-label";
 
 interface DemoAccount {
   role: Role;
@@ -66,15 +66,6 @@ const LOGIN_FIELDS = ["email", "password"] as const;
  */
 function nextFromUrl() {
   return new URLSearchParams(window.location.search).get("next") ?? undefined;
-}
-
-function PendingLabel() {
-  return (
-    <>
-      <Spinner aria-hidden="true" />
-      Signing in…
-    </>
-  );
 }
 
 export function LoginPanel({
@@ -198,7 +189,11 @@ export function LoginPanel({
                 className="w-full"
                 {...pendingProps("form")}
               >
-                {running === "form" ? <PendingLabel /> : "Sign in"}
+                {running === "form" ? (
+                  <PendingLabel>Signing in…</PendingLabel>
+                ) : (
+                  "Sign in"
+                )}
               </Button>
               <ColdStartHint pending={running === "form"} />
             </div>
@@ -246,7 +241,7 @@ export function LoginPanel({
                       onClick={() => onDemo(role)}
                     >
                       {running === role ? (
-                        <PendingLabel />
+                        <PendingLabel>Signing in…</PendingLabel>
                       ) : (
                         `Sign in as ${label.toLowerCase()}`
                       )}
@@ -263,15 +258,7 @@ export function LoginPanel({
         </div>
       </section>
 
-      <p className="text-sm text-muted-foreground">
-        No account?{" "}
-        <Link
-          href="/register"
-          className="rounded-sm font-medium text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/70"
-        >
-          Create one
-        </Link>
-      </p>
+      <AuthSwitch prompt="No account?" href="/register" label="Create one" />
     </div>
   );
 }
