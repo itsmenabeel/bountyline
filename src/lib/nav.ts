@@ -13,6 +13,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import { ROLE_HOME } from "@/lib/auth/roles";
 import type { Role } from "@/types/api";
 
 // Dashboard navigation per role (design-plan §6.3). Two levels at most; group labels only
@@ -42,7 +43,7 @@ export interface RoleWorkspace {
 export const ROLE_WORKSPACES: Record<Role, RoleWorkspace> = {
   RESEARCHER: {
     label: "Researcher",
-    home: "/researcher",
+    home: ROLE_HOME.RESEARCHER,
     profile: "/researcher/profile",
     nav: [
       {
@@ -63,7 +64,7 @@ export const ROLE_WORKSPACES: Record<Role, RoleWorkspace> = {
   },
   PROGRAM_OWNER: {
     label: "Program owner",
-    home: "/owner",
+    home: ROLE_HOME.PROGRAM_OWNER,
     profile: "/owner/profile",
     nav: [
       {
@@ -84,7 +85,7 @@ export const ROLE_WORKSPACES: Record<Role, RoleWorkspace> = {
   },
   ADMIN: {
     label: "Admin",
-    home: "/admin",
+    home: ROLE_HOME.ADMIN,
     profile: "/admin/profile",
     nav: [
       {

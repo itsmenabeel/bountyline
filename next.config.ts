@@ -7,6 +7,8 @@ parseServerEnv(process.env);
 parsePublicEnv(process.env);
 
 const nextConfig: NextConfig = {
+  // Agent instructions live in .claude/ (gitignored); keep `next dev` from writing AGENTS.md.
+  agentRules: false,
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
