@@ -3,6 +3,7 @@
 import { MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -14,7 +15,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { AUTH_LINKS, isActivePath, PUBLIC_NAV, SITE_NAME } from "@/lib/site";
+import { isActivePath, PUBLIC_NAV, SITE_NAME } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 // With Cache Components, usePathname suspends on routes whose params aren't known at
@@ -80,7 +81,8 @@ function MobileNavLinks() {
   );
 }
 
-export function PublicMobileNav() {
+/** `account` is the session-aware sign-in or dashboard links, rendered on the server. */
+export function PublicMobileNav({ account }: { account: ReactNode }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -104,22 +106,7 @@ export function PublicMobileNav() {
           <MobileNavLinks />
         </nav>
         <Separator />
-        <div className="flex flex-col gap-2 px-4 pb-4">
-          <SheetClose asChild>
-            <Button asChild variant="outline" size="lg">
-              <Link href={AUTH_LINKS.signIn.href}>
-                {AUTH_LINKS.signIn.label}
-              </Link>
-            </Button>
-          </SheetClose>
-          <SheetClose asChild>
-            <Button asChild size="lg">
-              <Link href={AUTH_LINKS.signUp.href}>
-                {AUTH_LINKS.signUp.label}
-              </Link>
-            </Button>
-          </SheetClose>
-        </div>
+        <div className="flex flex-col gap-2 px-4 pb-4">{account}</div>
       </SheetContent>
     </Sheet>
   );

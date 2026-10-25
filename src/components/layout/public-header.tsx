@@ -1,8 +1,6 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { Logo } from "@/components/brand/logo";
-import { Button } from "@/components/ui/button";
-import { AUTH_LINKS } from "@/lib/site";
+import { AccountLinks, SignedOutLinks } from "./account-links";
 import { NavLinkList, PublicMobileNav, PublicNavLinks } from "./public-nav";
 
 export function PublicHeader() {
@@ -15,15 +13,20 @@ export function PublicHeader() {
             <PublicNavLinks />
           </Suspense>
         </nav>
+        {/* Reading the session cookies is request-time, so it streams in; the fallback is
+            the signed-out pair, which keeps the header in the static shell. */}
         <div className="hidden items-center gap-2 md:flex">
-          <Button asChild variant="ghost">
-            <Link href={AUTH_LINKS.signIn.href}>{AUTH_LINKS.signIn.label}</Link>
-          </Button>
-          <Button asChild>
-            <Link href={AUTH_LINKS.signUp.href}>{AUTH_LINKS.signUp.label}</Link>
-          </Button>
+          <Suspense fallback={<SignedOutLinks variant="bar" />}>
+            <AccountLinks variant="bar" />
+          </Suspense>
         </div>
-        <PublicMobileNav />
+        <PublicMobileNav
+          account={
+            <Suspense fallback={<SignedOutLinks variant="sheet" />}>
+              <AccountLinks variant="sheet" />
+            </Suspense>
+          }
+        />
       </div>
     </header>
   );

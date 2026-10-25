@@ -83,7 +83,7 @@ export function clearSessionCookies(store: CookieStore) {
   store.set(REFRESH_COOKIE, "", options(0));
 }
 
-export function readSessionCookies(store: CookieStore) {
+export function readSessionCookies(store: Pick<CookieStore, "get">) {
   return {
     accessToken: store.get(ACCESS_COOKIE)?.value || undefined,
     refreshToken: store.get(REFRESH_COOKIE)?.value || undefined,

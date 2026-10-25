@@ -1,5 +1,5 @@
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { RoleArea } from "@/components/layout/role-area";
 
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
-  return <DashboardShell workspace="ADMIN">{children}</DashboardShell>;
+  return <RoleArea workspace="ADMIN">{children}</RoleArea>;
 }

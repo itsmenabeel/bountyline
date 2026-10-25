@@ -18,6 +18,9 @@ export const PUBLIC_NAV: NavItem[] = [
 export const AUTH_LINKS = {
   signIn: { label: "Sign in", href: "/login" },
   signUp: { label: "Get started", href: "/register" },
+  // Each role's home replaces this href once the role is known (components/layout/account-links.tsx).
+  // Until then /login works: proxy.ts sends signed-in visitors on to their dashboard.
+  dashboard: { label: "Go to dashboard", href: "/login" },
 } as const satisfies Record<string, NavItem>;
 
 export const FOOTER_NAV: { heading: string; items: NavItem[] }[] = [

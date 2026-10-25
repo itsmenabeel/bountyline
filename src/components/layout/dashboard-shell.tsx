@@ -11,7 +11,6 @@ import { ROLE_WORKSPACES } from "@/lib/nav";
 import { useUiStore } from "@/stores/ui-store";
 import type { Role } from "@/types/api";
 import { AppSidebar } from "./app-sidebar";
-import { AppearanceMenu } from "./appearance-menu";
 
 /**
  * Sidebar (lg and up) or drawer (below lg), a top bar, and the page in <main>.
@@ -20,9 +19,12 @@ import { AppearanceMenu } from "./appearance-menu";
  */
 export function DashboardShell({
   workspace,
+  userMenu,
   children,
 }: {
   workspace: Role;
+  /** Streams in behind its own Suspense boundary; the rest of the shell is static. */
+  userMenu: ReactNode;
   children: ReactNode;
 }) {
   const sidebarOpen = useUiStore((state) => state.sidebarOpen);
@@ -40,14 +42,12 @@ export function DashboardShell({
           <SidebarTrigger className="-ml-1" />
           <Separator
             orientation="vertical"
-            className="mr-1 data-[orientation=vertical]:h-5"
+            className="mr-1 data-vertical:h-5 data-vertical:self-center"
           />
           <span className="font-mono text-xs font-medium tracking-wide text-muted-foreground uppercase">
             {ROLE_WORKSPACES[workspace].label}
           </span>
-          <div className="ml-auto flex items-center gap-1">
-            <AppearanceMenu />
-          </div>
+          <div className="ml-auto flex items-center gap-1">{userMenu}</div>
         </header>
         <main
           id="main-content"

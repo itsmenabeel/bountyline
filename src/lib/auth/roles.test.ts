@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { homeFor, safeNextPath } from "./roles";
+import { areaRoleFor, homeFor, safeNextPath } from "./roles";
 
 describe("homeFor", () => {
   it("sends each role to its own dashboard", () => {
@@ -46,5 +46,27 @@ describe("safeNextPath", () => {
     expect(safeNextPath(undefined, "ADMIN")).toBeNull();
     expect(safeNextPath("", "ADMIN")).toBeNull();
     expect(safeNextPath(["/admin"], "ADMIN")).toBeNull();
+  });
+});
+
+describe("areaRoleFor", () => {
+  it("maps each area, including Stripe's /payment pages, to its role", () => {
+    expect(areaRoleFor("/admin")).toBe("ADMIN");
+    expect(areaRoleFor("/admin/reports/abc")).toBe("ADMIN");
+    expect(areaRoleFor("/owner/programs")).toBe("PROGRAM_OWNER");
+    expect(areaRoleFor("/payment/success")).toBe("PROGRAM_OWNER");
+    expect(areaRoleFor("/researcher")).toBe("RESEARCHER");
+  });
+
+  it("returns null outside the areas and for look-alike prefixes", () => {
+    for (const path of [
+      "/",
+      "/login",
+      "/programs",
+      "/administrator",
+      "/forbidden",
+    ]) {
+      expect(areaRoleFor(path)).toBeNull();
+    }
   });
 });
