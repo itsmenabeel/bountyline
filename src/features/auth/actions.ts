@@ -20,6 +20,8 @@ import {
   loginSchema,
   type RegisterValues,
   registerSchema,
+  SIGNUP_ROLES,
+  type SignupRole,
 } from "./schemas";
 
 // Server actions are public HTTP endpoints, so each one parses its own input. Tokens go
@@ -38,8 +40,18 @@ type StatusCopy = Partial<Record<number, string>>;
 const CHECK_FIELDS = "Check the highlighted fields and try again.";
 
 const LOGIN_COPY: StatusCopy = {
-  401: "That email and password don't match an account.",
+  401: "That email and password don't match an account. If you signed up with Google, use the Google button.",
   403: "An admin disabled this account. Use the contact page if you think that's a mistake.",
+};
+
+const GOOGLE_RETRY =
+  "Google couldn't confirm that sign-in. Try again, or use your email and password.";
+
+const GOOGLE_COPY: StatusCopy = {
+  401: GOOGLE_RETRY,
+  403: LOGIN_COPY[403],
+  409: "This email belongs to an account linked to a different Google account.",
+  503: "Google sign-in is unavailable right now. Use your email and password.",
 };
 
 const REGISTER_COPY: StatusCopy = {
@@ -134,6 +146,25 @@ export async function demoLogin(
     DEMO_COPY,
     next,
   );
+}
+
+const googleSchema = z.object({
+  idToken: z.string().min(1),
+  role: z.enum(SIGNUP_ROLES).optional(),
+});
+
+/**
+ * Signs in with the ID token from Google's button. An existing account with the same
+ * verified email gets linked; otherwise the backend creates one with `role` (researcher
+ * when omitted). `next` works as in `login`.
+ */
+export async function googleLogin(
+  input: { idToken: string; role?: SignupRole },
+  next?: string,
+): Promise<AuthFailure> {
+  const parsed = googleSchema.safeParse(input);
+  if (!parsed.success) return failure(GOOGLE_RETRY);
+  return startSession(authEndpoints.google(parsed.data), GOOGLE_COPY, next);
 }
 
 /** Creates a researcher or program owner account and signs it in. */

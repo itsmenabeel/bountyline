@@ -21,11 +21,12 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import type { Role } from "@/types/api";
-import { demoLogin, login } from "../actions";
+import { demoLogin, googleLogin, login } from "../actions";
 import { loginSchema } from "../schemas";
 import { useAuthAction } from "../use-auth-action";
 import { AuthSwitch } from "./auth-switch";
 import { type Failure, FailureAlert } from "./failure-alert";
+import { GOOGLE_POPUP_FAILED, GoogleButton } from "./google-button";
 import { PasswordInput } from "./password-input";
 import { PendingLabel } from "./pending-label";
 
@@ -60,6 +61,8 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
 
 const LOGIN_FIELDS = ["email", "password"] as const;
 
+type ActionKey = "form" | "google" | Role;
+
 /**
  * Read when the person submits, not during render, so the page needs no Suspense boundary
  * for search params and prerenders whole. The action ignores a `next` outside the user's area.
@@ -73,7 +76,7 @@ export function LoginPanel({
 }: {
   demoEmails: Record<Role, string>;
 }) {
-  const { running, isPending, run } = useAuthAction<"form" | Role>();
+  const { running, isPending, run } = useAuthAction<ActionKey>();
   const [formFailure, setFormFailure] = useState<Failure | null>(null);
   const [demoFailure, setDemoFailure] = useState<Failure | null>(null);
   const attempts = useRef(0);
@@ -107,6 +110,22 @@ export function LoginPanel({
     );
   });
 
+  function onGoogle(idToken: string) {
+    if (isPending) return;
+    const current = startAttempt();
+    run(
+      "google",
+      () => googleLogin({ idToken }, nextFromUrl()),
+      (failure) =>
+        setFormFailure({ message: failure.message, attempt: current }),
+    );
+  }
+
+  function onGoogleError() {
+    const current = startAttempt();
+    setFormFailure({ message: GOOGLE_POPUP_FAILED, attempt: current });
+  }
+
   function onDemo(role: Role) {
     if (isPending) return;
     const current = startAttempt();
@@ -120,7 +139,7 @@ export function LoginPanel({
 
   // The running button stays at full strength so its spinner reads as progress; the
   // handlers ignore repeat clicks. Every other sign-in button disables until it settles.
-  function pendingProps(key: "form" | Role) {
+  function pendingProps(key: ActionKey) {
     if (running === key) return { "aria-disabled": true };
     return { disabled: isPending };
   }
@@ -128,7 +147,7 @@ export function LoginPanel({
   return (
     <div className="flex flex-col gap-8">
       <Card>
-        <CardContent>
+        <CardContent className="flex flex-col gap-4">
           <form noValidate onSubmit={onSubmit} className="flex flex-col gap-5">
             <FieldGroup>
               <Controller
@@ -198,6 +217,20 @@ export function LoginPanel({
               <ColdStartHint pending={running === "form"} />
             </div>
           </form>
+
+          <div className="flex flex-col gap-2">
+            <GoogleButton
+              text="signin_with"
+              pending={running === "google"}
+              disabled={isPending}
+              onCredential={onGoogle}
+              onError={onGoogleError}
+            />
+            <p className="text-center text-sm text-balance text-muted-foreground">
+              New Google accounts join as researchers. To run a program, create
+              your account from the sign-up page.
+            </p>
+          </div>
         </CardContent>
       </Card>
 

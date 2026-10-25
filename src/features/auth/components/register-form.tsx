@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { ColdStartHint } from "@/components/shared/cold-start-hint";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,16 +14,18 @@ import {
   FieldGroup,
   FieldLabel,
   FieldLegend,
+  FieldSeparator,
   FieldSet,
   FieldTitle,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { register } from "../actions";
+import { googleLogin, register } from "../actions";
 import { registerSchema, type SignupRole } from "../schemas";
 import { useAuthAction } from "../use-auth-action";
 import { AuthSwitch } from "./auth-switch";
 import { type Failure, FailureAlert } from "./failure-alert";
+import { GOOGLE_POPUP_FAILED, GoogleButton } from "./google-button";
 import { PasswordInput } from "./password-input";
 import { PasswordRules } from "./password-rules";
 import { PendingLabel } from "./pending-label";
@@ -50,12 +52,17 @@ const ROLE_OPTIONS: {
 
 const REGISTER_FIELDS = ["name", "email", "password", "role"] as const;
 
+const JOINS_AS: Record<SignupRole, string> = {
+  RESEARCHER: "a researcher",
+  PROGRAM_OWNER: "a program owner",
+};
+
 /** Points a control at its error message only while there is one. */
 const describedBy = (...ids: (string | false | undefined)[]) =>
   ids.filter(Boolean).join(" ") || undefined;
 
 export function RegisterForm() {
-  const { running, isPending, run } = useAuthAction<"form">();
+  const { running, isPending, run } = useAuthAction<"form" | "google">();
   const [failure, setFailure] = useState<Failure | null>(null);
   const attempts = useRef(0);
 
@@ -67,12 +74,18 @@ export function RegisterForm() {
 
   // Read during this render so the form re-renders when a submit is attempted.
   const { isSubmitted } = form.formState;
+  // Google sign-up uses the role picked above, so its button waits for one.
+  const role = useWatch({ control: form.control, name: "role" });
+
+  function startAttempt() {
+    setFailure(null);
+    attempts.current += 1;
+    return attempts.current;
+  }
 
   const onSubmit = form.handleSubmit((values) => {
     if (isPending) return;
-    setFailure(null);
-    attempts.current += 1;
-    const attempt = attempts.current;
+    const attempt = startAttempt();
     run(
       "form",
       () => register(values),
@@ -86,10 +99,24 @@ export function RegisterForm() {
     );
   });
 
+  function onGoogle(idToken: string) {
+    if (isPending || !role) return;
+    const attempt = startAttempt();
+    run(
+      "google",
+      () => googleLogin({ idToken, role }),
+      (result) => setFailure({ message: result.message, attempt }),
+    );
+  }
+
+  function onGoogleError() {
+    setFailure({ message: GOOGLE_POPUP_FAILED, attempt: startAttempt() });
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <Card>
-        <CardContent>
+        <CardContent className="flex flex-col gap-6">
           <form noValidate onSubmit={onSubmit} className="flex flex-col gap-6">
             <FieldGroup>
               <Controller
@@ -234,7 +261,9 @@ export function RegisterForm() {
                 type="submit"
                 size="lg"
                 className="w-full"
-                aria-disabled={running === "form" || undefined}
+                {...(running === "form"
+                  ? { "aria-disabled": true }
+                  : { disabled: isPending })}
               >
                 {running === "form" ? (
                   <PendingLabel>Creating account…</PendingLabel>
@@ -245,6 +274,25 @@ export function RegisterForm() {
               <ColdStartHint pending={running === "form"} />
             </div>
           </form>
+
+          <FieldSeparator className="[&_[data-slot=field-separator-content]]:bg-card">
+            or
+          </FieldSeparator>
+
+          <div className="flex flex-col gap-2">
+            <GoogleButton
+              text="signup_with"
+              pending={running === "google"}
+              disabled={!role || isPending}
+              onCredential={onGoogle}
+              onError={onGoogleError}
+            />
+            <p className="text-center text-sm text-balance text-muted-foreground">
+              {role
+                ? `You'll join as ${JOINS_AS[role]}. Google shares your name and email with us.`
+                : "Pick a role first."}
+            </p>
+          </div>
         </CardContent>
       </Card>
 
