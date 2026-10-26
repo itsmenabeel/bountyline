@@ -120,6 +120,12 @@
   --chart-3: #8a90a0;
   --chart-4: #b8bdc8;
   --chart-5: #14161b;
+  /* Severity bars: the badge hues re-stepped so lightness climbs Low → Critical (checked with
+     the dataviz validator, --ordinal; the warm multi-hue spread is its "semantic heat" case). */
+  --chart-severity-low: #c99a06;
+  --chart-severity-medium: #d06a12;
+  --chart-severity-high: #b8400f;
+  --chart-severity-critical: #8e1035;
 
   --sidebar: #ffffff;
   --sidebar-foreground: #14161b;
@@ -178,6 +184,11 @@
   --chart-3: #666d80;
   --chart-4: #3a404d;
   --chart-5: #e6e8ec;
+  /* Dark flips the anchor: Critical is the brightest bar, Low the dimmest. */
+  --chart-severity-low: #6b5208;
+  --chart-severity-medium: #a5500e;
+  --chart-severity-high: #df6436;
+  --chart-severity-critical: #ff8fab;
 
   --sidebar: #161920;
   --sidebar-foreground: #e6e8ec;

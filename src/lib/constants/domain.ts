@@ -55,3 +55,34 @@ export const ROLE_LABEL: Record<Role, string> = {
   PROGRAM_OWNER: "Program owner",
   ADMIN: "Triage team",
 };
+
+/**
+ * Legal next statuses (backend REPORT_TRANSITIONS). REWARDED comes only from the payout
+ * endpoint, so the triage panel offers `TRIAGE_TARGETS` instead.
+ */
+export const REPORT_TRANSITIONS: Record<ReportStatus, readonly ReportStatus[]> =
+  {
+    NEW: ["TRIAGING", "REJECTED", "DUPLICATE"],
+    TRIAGING: ["ACCEPTED", "NEEDS_INFO", "REJECTED", "DUPLICATE"],
+    NEEDS_INFO: ["TRIAGING"],
+    ACCEPTED: ["REWARDED"],
+    DUPLICATE: [],
+    REJECTED: [],
+    REWARDED: [],
+  };
+
+export type TriageTarget = Exclude<ReportStatus, "NEW" | "REWARDED">;
+
+export function triageTargets(status: ReportStatus): TriageTarget[] {
+  return REPORT_TRANSITIONS[status].filter(
+    (next): next is TriageTarget => next !== "REWARDED" && next !== "NEW",
+  );
+}
+
+/** Reports still moving through triage (dashboard "open reports"). */
+export const OPEN_REPORT_STATUSES = [
+  "NEW",
+  "TRIAGING",
+  "NEEDS_INFO",
+  "ACCEPTED",
+] as const satisfies readonly ReportStatus[];

@@ -134,7 +134,7 @@ export function ReportDetail({
 
         <aside
           aria-label="Report details"
-          className="flex flex-col gap-4 lg:sticky lg:top-20 lg:col-start-2 lg:row-span-2 lg:row-start-1"
+          className="flex flex-col gap-4 lg:col-start-2 lg:row-span-2 lg:row-start-1"
         >
           <div className="flex flex-col gap-4 rounded-xl border bg-card p-5">
             <dl className="flex flex-col divide-y">

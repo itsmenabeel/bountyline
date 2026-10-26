@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, initials, plainExcerpt } from "./format";
+import { formatAge, formatDate, initials, plainExcerpt } from "./format";
 
 describe("initials", () => {
   it("takes the first and last word", () => {
@@ -36,5 +36,18 @@ describe("plainExcerpt", () => {
         "## Scope\n\nTest **only** the `api` host.\n- See [rules](https://x.test)",
       ),
     ).toBe("Scope Test only the api host. See rules");
+  });
+});
+
+describe("formatAge", () => {
+  const now = new Date("2026-10-26T12:00:00.000Z");
+  it("counts whole days", () => {
+    expect(formatAge("2026-10-26T01:00:00.000Z", now)).toBe("Today");
+    expect(formatAge("2026-10-25T11:00:00.000Z", now)).toBe("1 day");
+    expect(formatAge("2026-10-12T12:00:00.000Z", now)).toBe("14 days");
+  });
+
+  it("never goes negative for a clock slightly behind the server", () => {
+    expect(formatAge("2026-10-26T12:00:05.000Z", now)).toBe("Today");
   });
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { FileText, SearchX } from "lucide-react";
+import { FileText, Inbox, SearchX } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useMemo } from "react";
 import {
@@ -24,8 +24,13 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { directoryQuery } from "@/features/programs/queries";
 import { useListParams } from "@/hooks/use-list-params";
-import { REPORT_STATUS_LABEL, SEVERITY_LABEL } from "@/lib/constants/domain";
-import { formatDate } from "@/lib/format";
+import {
+  OPEN_REPORT_STATUSES,
+  REPORT_STATUS_LABEL,
+  SEVERITY_LABEL,
+} from "@/lib/constants/domain";
+import { formatAge, formatDate } from "@/lib/format";
+import { shortId } from "@/lib/ids";
 import { hasActiveFilters } from "@/lib/list-params";
 import { clientQuery } from "@/lib/query/descriptor";
 import {
@@ -35,13 +40,34 @@ import {
   SEVERITIES,
   type Severity,
 } from "@/types/api";
-import { type ReportSort, reportListParams } from "../params";
+import {
+  type ReportSort,
+  reportListParams,
+  triageQueueParams,
+} from "../params";
 import { reportListQuery } from "../queries";
 import { DisclosureTrack } from "./disclosure-track";
 
-const STATUS_OPTIONS: FilterOption<ReportStatus>[] = REPORT_STATUSES.map(
-  (status) => ({ value: status, label: REPORT_STATUS_LABEL[status] }),
-);
+export type ReportTableVariant = "researcher" | "admin";
+
+const statusOptions = (statuses: readonly ReportStatus[]) =>
+  statuses.map((status) => ({
+    value: status,
+    label: REPORT_STATUS_LABEL[status],
+  }));
+
+// Researchers follow every status. The triage queue's tabs are the states that still need
+// the team; closed reports stay under All.
+const STATUS_OPTIONS: Record<ReportTableVariant, FilterOption<ReportStatus>[]> =
+  {
+    researcher: statusOptions(REPORT_STATUSES),
+    admin: statusOptions(OPEN_REPORT_STATUSES),
+  };
+
+const BASE_PATH: Record<ReportTableVariant, string> = {
+  researcher: "/researcher/reports",
+  admin: "/admin/reports",
+};
 const SEVERITY_OPTIONS: FilterOption<Severity>[] = SEVERITIES.map(
   (severity) => ({ value: severity, label: SEVERITY_LABEL[severity] }),
 );
@@ -58,15 +84,15 @@ const PROGRAM_OPTIONS_QUERY = directoryQuery("signed-in", {
 
 /**
  * Reports with status tabs, severity and program filters, a title search, and sortable
- * dates, all in the URL. The backend scopes the rows: a researcher sees only their own.
+ * dates, all in the URL. The backend scopes the rows: a researcher sees only their own, an
+ * admin sees every report (the triage queue, oldest first).
  */
-export function ReportTable({
-  basePath,
-}: {
-  /** Title links go to `${basePath}/${id}`. */
-  basePath: "/researcher/reports";
-}) {
-  const { params, defaults, setParams } = useListParams(reportListParams);
+export function ReportTable({ variant }: { variant: ReportTableVariant }) {
+  const isAdmin = variant === "admin";
+  const basePath = BASE_PATH[variant];
+  const { params, defaults, setParams } = useListParams(
+    isAdmin ? triageQueueParams : reportListParams,
+  );
   const query = useQuery({
     ...clientQuery(reportListQuery(params)),
     placeholderData: keepPreviousData,
@@ -94,68 +120,112 @@ export function ReportTable({
       programId: undefined,
     });
 
-  const columns = useMemo<DataTableColumn<Report, ReportSort>[]>(
-    () => [
+  const columns = useMemo<DataTableColumn<Report, ReportSort>[]>(() => {
+    const title: DataTableColumn<Report, ReportSort> = {
+      id: "title",
+      header: "Report",
+      sortKey: "title",
+      firstOrder: "asc",
+      className: "min-w-56 max-w-96",
+      cell: (report) => (
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <Link
+            href={`${basePath}/${report.id}`}
+            className="font-medium text-pretty underline-offset-4 hover:underline"
+          >
+            {report.title}
+          </Link>
+          <span className="text-xs text-muted-foreground">
+            {report.program.title}
+          </span>
+        </div>
+      ),
+    };
+    const status: DataTableColumn<Report, ReportSort> = {
+      id: "status",
+      header: "Status",
+      className: "min-w-52",
+      cell: (report) => (
+        <div className="flex items-center gap-3">
+          <StatusBadge kind="report" status={report.status} />
+          <DisclosureTrack status={report.status} variant="compact" />
+        </div>
+      ),
+    };
+    const severity: DataTableColumn<Report, ReportSort> = {
+      id: "severity",
+      header: "Severity",
+      cell: (report) => <SeverityBadge severity={report.severity} />,
+    };
+
+    if (!isAdmin) {
+      return [
+        title,
+        status,
+        severity,
+        {
+          id: "created",
+          header: "Submitted",
+          sortKey: "createdAt",
+          className: "whitespace-nowrap text-muted-foreground",
+          cell: (report) => formatDate(report.createdAt),
+        },
+        {
+          id: "updated",
+          header: "Updated",
+          sortKey: "updatedAt",
+          className: "whitespace-nowrap text-muted-foreground",
+          cell: (report) => formatDate(report.updatedAt),
+        },
+      ];
+    }
+    return [
+      // The title comes first because the first column stays pinned on phones.
+      title,
       {
-        id: "title",
-        header: "Report",
-        sortKey: "title",
-        firstOrder: "asc",
-        className: "min-w-56 max-w-96",
+        id: "id",
+        header: "ID",
+        className: "whitespace-nowrap font-mono text-xs text-muted-foreground",
+        cell: (report) => shortId(report.id, "R"),
+      },
+      {
+        id: "researcher",
+        header: "Researcher",
+        className: "whitespace-nowrap",
         cell: (report) => (
-          <div className="flex min-w-0 flex-col gap-0.5">
-            <Link
-              href={`${basePath}/${report.id}`}
-              className="font-medium text-pretty underline-offset-4 hover:underline"
-            >
-              {report.title}
-            </Link>
+          <div className="flex flex-col gap-0.5">
+            <span>{report.researcher.name}</span>
             <span className="text-xs text-muted-foreground">
-              {report.program.title}
+              Reputation {report.researcher.reputation.toLocaleString("en-US")}
             </span>
           </div>
         ),
       },
+      severity,
+      status,
       {
-        id: "status",
-        header: "Status",
-        className: "min-w-52",
+        id: "age",
+        header: "Age",
+        sortKey: "createdAt",
+        firstOrder: "asc",
+        className: "whitespace-nowrap text-muted-foreground",
         cell: (report) => (
-          <div className="flex items-center gap-3">
-            <StatusBadge kind="report" status={report.status} />
-            <DisclosureTrack status={report.status} variant="compact" />
-          </div>
+          // Counted from the clock at render, so the server and the browser can disagree
+          // for a moment around midnight UTC.
+          <time dateTime={report.createdAt} suppressHydrationWarning>
+            {formatAge(report.createdAt)}
+          </time>
         ),
       },
-      {
-        id: "severity",
-        header: "Severity",
-        cell: (report) => <SeverityBadge severity={report.severity} />,
-      },
-      {
-        id: "created",
-        header: "Submitted",
-        sortKey: "createdAt",
-        className: "whitespace-nowrap text-muted-foreground",
-        cell: (report) => formatDate(report.createdAt),
-      },
-      {
-        id: "updated",
-        header: "Updated",
-        sortKey: "updatedAt",
-        className: "whitespace-nowrap text-muted-foreground",
-        cell: (report) => formatDate(report.updatedAt),
-      },
-    ],
-    [basePath],
-  );
+    ];
+  }, [basePath, isAdmin]);
 
   return (
     <div className="flex flex-col gap-4">
       <StatusTabs
         label="Status"
         allLabel="All"
-        options={STATUS_OPTIONS}
+        options={STATUS_OPTIONS[variant]}
         value={params.status}
         onChange={(status) => setParams({ status })}
       />
@@ -206,6 +276,12 @@ export function ReportTable({
                       Clear filters
                     </Button>
                   }
+                />
+              ) : isAdmin ? (
+                <EmptyState
+                  icon={Inbox}
+                  title="No reports yet."
+                  description="Reports show here as researchers submit them."
                 />
               ) : (
                 <EmptyState

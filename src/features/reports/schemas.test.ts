@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { commentSchema, reportWriteupSchema } from "./schemas";
+import {
+  commentSchema,
+  reportWriteupSchema,
+  toTriageRequest,
+  triageSchema,
+} from "./schemas";
 
 const firstMessage = (result: { error?: { issues: { message: string }[] } }) =>
   result.error?.issues[0]?.message;
@@ -52,5 +57,56 @@ describe("commentSchema", () => {
     expect(
       firstMessage(commentSchema.safeParse({ body: "a".repeat(5_001) })),
     ).toBe("Use 5,000 characters or fewer.");
+  });
+});
+
+describe("triageSchema", () => {
+  const issues = (values: Record<string, unknown>) =>
+    triageSchema
+      .safeParse({ note: "", ...values })
+      .error?.issues.map(
+        (issue) => `${issue.path.join(".")}: ${issue.message}`,
+      );
+
+  it("needs a status", () => {
+    expect(issues({})).toEqual(["status: Choose where the report goes next."]);
+  });
+
+  it("needs a severity to accept, an original for a duplicate, a note to ask", () => {
+    expect(issues({ status: "ACCEPTED" })).toEqual([
+      "severity: Choose the severity it pays at.",
+    ]);
+    expect(issues({ status: "DUPLICATE" })).toEqual([
+      "duplicateOfId: Pick the original report.",
+    ]);
+    expect(issues({ status: "NEEDS_INFO", note: "   " })).toEqual([
+      "note: Tell the researcher what's missing.",
+    ]);
+    expect(issues({ status: "REJECTED" })).toBeUndefined();
+  });
+
+  it("caps the note at 1,000 characters", () => {
+    expect(issues({ status: "REJECTED", note: "a".repeat(1_001) })).toEqual([
+      "note: Use 1,000 characters or fewer.",
+    ]);
+  });
+});
+
+describe("toTriageRequest", () => {
+  it("sends only the fields the chosen status takes", () => {
+    expect(
+      toTriageRequest({
+        status: "REJECTED",
+        severity: "HIGH",
+        duplicateOfId: "x",
+        note: "",
+      }),
+    ).toEqual({ status: "REJECTED" });
+    expect(
+      toTriageRequest({ status: "ACCEPTED", severity: "HIGH", note: "Valid." }),
+    ).toEqual({ status: "ACCEPTED", severity: "HIGH", note: "Valid." });
+    expect(
+      toTriageRequest({ status: "DUPLICATE", duplicateOfId: "abc", note: "" }),
+    ).toEqual({ status: "DUPLICATE", duplicateOfId: "abc" });
   });
 });

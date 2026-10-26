@@ -20,7 +20,7 @@ export default async function ResearcherReportsPage({
         description="Every report you've submitted and where it stands in triage."
       />
       <HydrateClient>
-        <ReportTable basePath="/researcher/reports" />
+        <ReportTable variant="researcher" />
       </HydrateClient>
     </>
   );

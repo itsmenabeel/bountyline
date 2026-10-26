@@ -36,3 +36,15 @@ export function plainExcerpt(markdown: string) {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** How long something has waited, in whole days: "Today", "1 day", "12 days". */
+export function formatAge(iso: string, now: Date = new Date()) {
+  const days = Math.max(
+    0,
+    Math.floor((now.getTime() - Date.parse(iso)) / DAY_MS),
+  );
+  if (days === 0) return "Today";
+  return days === 1 ? "1 day" : `${days.toLocaleString("en-US")} days`;
+}

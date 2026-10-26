@@ -6,7 +6,11 @@ import type {
   Severity,
 } from "@/types/api";
 import type { ReportSort } from "./params";
-import type { CommentInput, ReportWriteupInput } from "./schemas";
+import type {
+  CommentInput,
+  ReportWriteupInput,
+  TriageRequest,
+} from "./schemas";
 
 export interface ReportListQuery {
   page: number;
@@ -27,6 +31,9 @@ export const reportEndpoints = {
   /** Researchers only, while NEW or NEEDS_INFO. A NEEDS_INFO edit goes back to triage. */
   update: (id: string, body: Partial<ReportWriteupInput>) =>
     endpoint<Report>({ method: "PATCH", path: `/reports/${id}`, body }),
+  /** Admins only. The backend checks the move against REPORT_TRANSITIONS again. */
+  triage: (id: string, body: TriageRequest) =>
+    endpoint<Report>({ method: "PATCH", path: `/reports/${id}/status`, body }),
   remove: (id: string) =>
     endpoint<void>({ method: "DELETE", path: `/reports/${id}` }),
   /** Oldest first. */
