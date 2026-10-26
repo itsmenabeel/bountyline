@@ -1,12 +1,9 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
-import { cache, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { SheetClose } from "@/components/ui/sheet";
-import { readSessionCookies } from "@/lib/auth/cookies";
 import { homeFor } from "@/lib/auth/roles";
-import { verifyAccessToken } from "@/lib/auth/tokens";
-import { serverEnv } from "@/lib/env/server";
+import { getVisitor } from "@/lib/auth/visitor";
 import { AUTH_LINKS } from "@/lib/site";
 
 type Variant = "bar" | "sheet";
@@ -16,14 +13,11 @@ type Variant = "bar" | "sheet";
  * read, so public pages make no backend call. With an expired access token but a refresh
  * token, /login refreshes the session and forwards to the dashboard (proxy.ts).
  */
-const dashboardHref = cache(async (): Promise<string | null> => {
-  const { accessToken, refreshToken } = readSessionCookies(await cookies());
-  const claims = accessToken
-    ? await verifyAccessToken(accessToken, serverEnv.JWT_ACCESS_SECRET)
-    : null;
-  if (claims) return homeFor(claims.role);
-  return refreshToken ? AUTH_LINKS.dashboard.href : null;
-});
+async function dashboardHref(): Promise<string | null> {
+  const { role, canResume } = await getVisitor();
+  if (role) return homeFor(role);
+  return canResume ? AUTH_LINKS.dashboard.href : null;
+}
 
 // In the mobile sheet each link also closes the sheet.
 function SheetItem({

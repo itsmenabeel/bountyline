@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { backendFetch } from "@/lib/api/backend";
-import { toBackendPath } from "@/lib/api/bff-path";
+import { isPublicRead, toBackendPath } from "@/lib/api/bff-path";
 import { isApiError } from "@/lib/api/errors";
 import type { ApiFailure } from "@/lib/api/types";
 import { clearSessionCookies, writeSessionCookies } from "@/lib/auth/cookies";
@@ -29,6 +29,28 @@ function isCrossSite(request: NextRequest) {
   return origin !== null && origin !== request.nextUrl.origin;
 }
 
+/** Calls the backend and relays its answer: the status, the body, and its type, no headers. */
+async function relay(...args: Parameters<typeof backendFetch>) {
+  let upstream: Response;
+  try {
+    upstream = await backendFetch(...args);
+  } catch (error) {
+    // 503 keeps the message: ApiError.userMessage hides generic 5xx text but not 502/503.
+    return failure(
+      503,
+      isApiError(error) ? error.userMessage : "We couldn't reach the server.",
+    );
+  }
+  return new NextResponse(upstream.body, {
+    status: upstream.status,
+    headers: {
+      "Content-Type":
+        upstream.headers.get("content-type") ?? "application/json",
+      "Cache-Control": "no-store",
+    },
+  });
+}
+
 async function forward(
   request: NextRequest,
   { params }: RouteContext<"/api/bff/[...path]">,
@@ -49,6 +71,15 @@ async function forward(
     }
   }
 
+  // Public reads carry no token, so a signed-out visitor (or an ended session) still gets them.
+  if (isPublicRead(method, path)) {
+    return relay(
+      `${path}${request.nextUrl.search}`,
+      { method },
+      { incoming: request.headers },
+    );
+  }
+
   const resolved = await resolveSession(request.cookies, request.headers);
   if (!resolved.session) {
     const response = failure(401, "Your session ended. Sign in again.");
@@ -56,30 +87,11 @@ async function forward(
     return response;
   }
 
-  let upstream: Response;
-  try {
-    upstream = await backendFetch(
-      `${path}${request.nextUrl.search}`,
-      { method, body },
-      { incoming: request.headers, accessToken: resolved.session.accessToken },
-    );
-  } catch (error) {
-    // 503 keeps the message: ApiError.userMessage hides generic 5xx text but not 502/503.
-    return failure(
-      503,
-      isApiError(error) ? error.userMessage : "We couldn't reach the server.",
-    );
-  }
-
-  // Only the status, the body, and its type go back. No backend headers reach the browser.
-  const response = new NextResponse(upstream.body, {
-    status: upstream.status,
-    headers: {
-      "Content-Type":
-        upstream.headers.get("content-type") ?? "application/json",
-      "Cache-Control": "no-store",
-    },
-  });
+  const response = await relay(
+    `${path}${request.nextUrl.search}`,
+    { method, body },
+    { incoming: request.headers, accessToken: resolved.session.accessToken },
+  );
   if (resolved.rotated) writeSessionCookies(response.cookies, resolved.rotated);
   return response;
 }

@@ -18,3 +18,13 @@ export function toBackendPath(
   if (root === undefined || BLOCKED_ROOTS.has(root.toLowerCase())) return null;
   return `/${segments.map(encodeURIComponent).join("/")}`;
 }
+
+/**
+ * Reads anyone may make (backend change B1). The BFF forwards these without a session, so
+ * the public program directory works for signed-out visitors.
+ */
+export function isPublicRead(method: string, path: string) {
+  return (
+    method === "GET" && (path === "/public" || path.startsWith("/public/"))
+  );
+}

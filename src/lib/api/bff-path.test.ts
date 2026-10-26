@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toBackendPath } from "./bff-path";
+import { isPublicRead, toBackendPath } from "./bff-path";
 
 describe("toBackendPath", () => {
   it("joins segments into a backend path", () => {
@@ -23,5 +23,15 @@ describe("toBackendPath", () => {
     expect(toBackendPath([".", "users"])).toBeNull();
     expect(toBackendPath(["users", ""])).toBeNull();
     expect(toBackendPath([])).toBeNull();
+  });
+});
+
+describe("isPublicRead", () => {
+  it("allows GETs below /public only", () => {
+    expect(isPublicRead("GET", "/public/programs")).toBe(true);
+    expect(isPublicRead("GET", "/public/stats")).toBe(true);
+    expect(isPublicRead("POST", "/public/programs")).toBe(false);
+    expect(isPublicRead("GET", "/publicity")).toBe(false);
+    expect(isPublicRead("GET", "/programs")).toBe(false);
   });
 });

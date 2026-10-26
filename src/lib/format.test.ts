@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { initials } from "./format";
+import { formatDate, initials, plainExcerpt } from "./format";
 
 describe("initials", () => {
   it("takes the first and last word", () => {
@@ -19,5 +19,22 @@ describe("initials", () => {
 
   it("falls back to a question mark for an empty name", () => {
     expect(initials("   ")).toBe("?");
+  });
+});
+
+describe("formatDate", () => {
+  it("formats in UTC so server and browser agree", () => {
+    expect(formatDate("2026-10-12T09:14:00.000Z")).toBe("Oct 12, 2026");
+    expect(formatDate("2026-10-12T23:59:59.000Z")).toBe("Oct 12, 2026");
+  });
+});
+
+describe("plainExcerpt", () => {
+  it("strips Markdown syntax and joins lines", () => {
+    expect(
+      plainExcerpt(
+        "## Scope\n\nTest **only** the `api` host.\n- See [rules](https://x.test)",
+      ),
+    ).toBe("Scope Test only the api host. See rules");
   });
 });

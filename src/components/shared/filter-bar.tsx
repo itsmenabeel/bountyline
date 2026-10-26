@@ -148,6 +148,48 @@ export function SelectFilter<Value extends string>({
   );
 }
 
+/**
+ * Sort order as one select, for lists without sortable column headers (card grids). Each
+ * option's value names the field and direction, e.g. "poolBalance:desc".
+ */
+export function SortSelect<Value extends string>({
+  id,
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  options: readonly FilterOption<Value>[];
+  value: Value;
+  onChange: (value: Value) => void;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1.5 sm:w-48">
+      <Label htmlFor={id}>{label}</Label>
+      <Select
+        value={value}
+        onValueChange={(next) => {
+          const option = options.find((candidate) => candidate.value === next);
+          if (option) onChange(option.value);
+        }}
+      >
+        <SelectTrigger id={id} className="w-full">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
 /** Shown only while a filter or search is narrowing the list. */
 export function ClearFiltersButton({
   visible,

@@ -5,7 +5,12 @@ import {
   REFRESH_COOKIE,
   writeSessionCookies,
 } from "@/lib/auth/cookies";
-import { AUTH_PAGES, areaRoleFor, homeFor } from "@/lib/auth/roles";
+import {
+  AUTH_PAGES,
+  areaRoleFor,
+  homeFor,
+  safeNextPath,
+} from "@/lib/auth/roles";
 import { REQUEST_PATH_HEADER, resolveSession } from "@/lib/auth/session";
 
 /**
@@ -33,8 +38,14 @@ export async function proxy(request: NextRequest) {
     login.searchParams.set("next", `${pathname}${search}`);
     response = NextResponse.redirect(login);
   } else if (!isAction && isAuthPage && session) {
+    // A `next` inside the user's own area wins, so "Sign in to submit" on a public program
+    // lands a researcher whose session is still alive on the report form.
+    const next = safeNextPath(
+      request.nextUrl.searchParams.get("next"),
+      session.role,
+    );
     response = NextResponse.redirect(
-      new URL(homeFor(session.role), request.url),
+      new URL(next ?? homeFor(session.role), request.url),
     );
   } else {
     const headers = new Headers(request.headers);
