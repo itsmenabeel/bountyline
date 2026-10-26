@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { MarkdownView } from "@/components/shared/markdown-view";
 import { Money } from "@/components/shared/money";
 import { SeverityBadge } from "@/components/shared/severity-badge";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -151,10 +152,7 @@ export function ProgramDetail({
 
         <div className="flex min-w-0 flex-col gap-8 lg:order-1">
           <Section title="About this program">
-            {/* Plain text for now; step 18's Markdown renderer takes over here. */}
-            <p className="max-w-prose text-base leading-relaxed whitespace-pre-line">
-              {program.description}
-            </p>
+            <MarkdownView source={program.description} />
           </Section>
           <Section title="In scope">
             <AssetList assets={inScope} />
@@ -170,9 +168,7 @@ export function ProgramDetail({
           </Section>
           {rules && (
             <Section title="Rules">
-              <p className="max-w-prose text-base leading-relaxed whitespace-pre-line">
-                {rules}
-              </p>
+              <MarkdownView source={rules} />
             </Section>
           )}
         </div>

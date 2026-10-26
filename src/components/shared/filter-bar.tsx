@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDebouncedValue } from "@/hooks/use-debounce";
+import { cn } from "@/lib/utils";
 
 /** A row of list controls: search first, then filters, then "Clear filters". Wraps on phones. */
 export function FilterBar({
@@ -187,6 +188,56 @@ export function SortSelect<Value extends string>({
         </SelectContent>
       </Select>
     </div>
+  );
+}
+
+/**
+ * One filter as a row of pressed/unpressed buttons above the list, for the filter people
+ * switch most (report status). Buttons, not tabs: the list below is the same region whatever
+ * is chosen, so there are no tab panels to point at. Scrolls sideways on phones.
+ */
+export function StatusTabs<Value extends string>({
+  label,
+  allLabel,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  allLabel: string;
+  options: readonly FilterOption<Value>[];
+  value: Value | undefined;
+  onChange: (value: Value | undefined) => void;
+}) {
+  const choices: { value: Value | undefined; label: string }[] = [
+    { value: undefined, label: allLabel },
+    ...options,
+  ];
+  return (
+    <fieldset className="min-w-0">
+      <legend className="sr-only">{label}</legend>
+      <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+        {choices.map((choice) => {
+          const pressed = choice.value === value;
+          return (
+            <button
+              key={choice.value ?? ALL}
+              type="button"
+              aria-pressed={pressed}
+              onClick={() => onChange(choice.value)}
+              className={cn(
+                "h-8 shrink-0 rounded-full border px-3 text-sm font-medium whitespace-nowrap outline-none transition-colors duration-(--motion-fast) focus-visible:ring-3 focus-visible:ring-ring/70 pointer-coarse:h-11 pointer-coarse:px-4",
+                pressed
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-input bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              {choice.label}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
   );
 }
 

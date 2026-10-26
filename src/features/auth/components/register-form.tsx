@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { ColdStartHint } from "@/components/shared/cold-start-hint";
+import { type Failure, FailureAlert } from "@/components/shared/failure-alert";
+import { PendingLabel } from "@/components/shared/pending-label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -24,11 +26,9 @@ import { googleLogin, register } from "../actions";
 import { registerSchema, type SignupRole } from "../schemas";
 import { useAuthAction } from "../use-auth-action";
 import { AuthSwitch } from "./auth-switch";
-import { type Failure, FailureAlert } from "./failure-alert";
 import { GOOGLE_POPUP_FAILED, GoogleButton } from "./google-button";
 import { PasswordInput } from "./password-input";
 import { PasswordRules } from "./password-rules";
-import { PendingLabel } from "./pending-label";
 
 // Admins are seeded or promoted by another admin, so sign-up offers two roles
 // (design-plan §7.2).

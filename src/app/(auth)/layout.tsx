@@ -1,5 +1,6 @@
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Logo } from "@/components/brand/logo";
+import { ClearQueryCache } from "@/components/providers/clear-query-cache";
 import { publicEnv } from "@/lib/env/public";
 
 /**
@@ -14,6 +15,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
       clientId={publicEnv.NEXT_PUBLIC_GOOGLE_CLIENT_ID}
       locale="en"
     >
+      <ClearQueryCache />
       <header className="mx-auto w-full max-w-page px-4 py-5 md:px-6 lg:px-8">
         <Logo />
       </header>

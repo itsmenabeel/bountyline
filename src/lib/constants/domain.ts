@@ -2,6 +2,7 @@ import type {
   PaymentStatus,
   ProgramStatus,
   ReportStatus,
+  Role,
   Severity,
 } from "@/types/api";
 
@@ -37,4 +38,20 @@ export const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
   SUCCEEDED: "Succeeded",
   FAILED: "Failed",
   CANCELLED: "Cancelled",
+};
+
+/** Researchers may edit or delete a report only in these statuses (backend EDITABLE_STATUSES). */
+export const REPORT_EDITABLE_STATUSES = [
+  "NEW",
+  "NEEDS_INFO",
+] as const satisfies readonly ReportStatus[];
+
+export function isReportEditable(status: ReportStatus) {
+  return (REPORT_EDITABLE_STATUSES as readonly ReportStatus[]).includes(status);
+}
+
+export const ROLE_LABEL: Record<Role, string> = {
+  RESEARCHER: "Researcher",
+  PROGRAM_OWNER: "Program owner",
+  ADMIN: "Triage team",
 };

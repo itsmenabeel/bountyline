@@ -10,6 +10,8 @@ import {
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ColdStartHint } from "@/components/shared/cold-start-hint";
+import { type Failure, FailureAlert } from "@/components/shared/failure-alert";
+import { PendingLabel } from "@/components/shared/pending-label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -25,10 +27,8 @@ import { demoLogin, googleLogin, login } from "../actions";
 import { loginSchema } from "../schemas";
 import { useAuthAction } from "../use-auth-action";
 import { AuthSwitch } from "./auth-switch";
-import { type Failure, FailureAlert } from "./failure-alert";
 import { GOOGLE_POPUP_FAILED, GoogleButton } from "./google-button";
 import { PasswordInput } from "./password-input";
-import { PendingLabel } from "./pending-label";
 
 interface DemoAccount {
   role: Role;
