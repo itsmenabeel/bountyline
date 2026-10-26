@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { chartHeight } from "../chart-size";
 import type { ChartRow } from "../stats";
 
 // Mark specs from the dataviz skill: bars at most 24px thick with a 4px rounded data end
@@ -20,7 +21,6 @@ import type { ChartRow } from "../stats";
 // on keyboard focus (Recharts' accessibility layer: Tab to the chart, then the arrow keys).
 
 const BAR_SIZE = 20;
-const ROW_HEIGHT = 36;
 
 function Tip({
   active,
@@ -96,7 +96,7 @@ export function BarChartView({
   title: string;
 }) {
   const horizontal = orientation === "horizontal";
-  const height = horizontal ? rows.length * ROW_HEIGHT + 16 : 240;
+  const height = chartHeight(rows.length, orientation);
 
   return (
     <ChartContainer

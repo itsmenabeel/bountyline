@@ -1,28 +1,38 @@
+import {
+  FilterBarSkeleton,
+  LoadingFrame,
+} from "@/components/shared/page-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const CARDS = ["a", "b", "c", "d"] as const;
 
-/** The directory's filters and a few cards, while the first page of programs loads. */
-export function ProgramDirectorySkeleton() {
+/** The directory's filters and a few cards, without the frame (for loading pages to compose). */
+export function ProgramGridSkeleton() {
   return (
-    <div className="flex flex-col gap-6" aria-hidden="true">
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Skeleton className="h-14 w-full sm:w-72" />
-        <Skeleton className="h-14 w-full sm:w-48" />
-      </div>
+    <>
+      <FilterBarSkeleton />
       <div className="grid gap-4 lg:grid-cols-2">
         {CARDS.map((key) => (
           <Skeleton key={key} className="h-72 rounded-xl" />
         ))}
       </div>
-    </div>
+    </>
+  );
+}
+
+/** The directory while its first page loads, below a header that already rendered. */
+export function ProgramDirectorySkeleton() {
+  return (
+    <LoadingFrame>
+      <ProgramGridSkeleton />
+    </LoadingFrame>
   );
 }
 
 /** Title, then the pool card beside the description, matching ProgramDetail's layout. */
 export function ProgramDetailSkeleton() {
   return (
-    <div className="flex flex-col gap-8" aria-hidden="true">
+    <LoadingFrame>
       <div className="flex flex-col gap-3">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-9 w-full max-w-lg" />
@@ -37,6 +47,6 @@ export function ProgramDetailSkeleton() {
           <Skeleton className="h-4 w-2/3 max-w-prose" />
         </div>
       </div>
-    </div>
+    </LoadingFrame>
   );
 }

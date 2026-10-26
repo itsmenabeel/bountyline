@@ -5,13 +5,14 @@ import dynamic from "next/dynamic";
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { chartHeight } from "../chart-size";
 import type { ChartRow } from "../stats";
 
 // Recharts only runs in the browser and is the heaviest thing on this page, so each chart
 // loads after the titles and summaries, which render on the server.
 const BarChartView = dynamic(
   () => import("./bar-chart-view").then((module) => module.BarChartView),
-  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+  { ssr: false, loading: () => <Skeleton className="absolute inset-0" /> },
 );
 
 /**
@@ -102,12 +103,18 @@ export function ChartCard({
           </tbody>
         </table>
       ) : (
-        <BarChartView
-          rows={rows}
-          orientation={orientation}
-          format={format}
-          title={title}
-        />
+        // The placeholder holds the chart's exact height until Recharts loads.
+        <div
+          className="relative"
+          style={{ minHeight: chartHeight(rows.length, orientation) }}
+        >
+          <BarChartView
+            rows={rows}
+            orientation={orientation}
+            format={format}
+            title={title}
+          />
+        </div>
       )}
     </section>
   );
