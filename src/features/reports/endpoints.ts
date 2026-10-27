@@ -8,6 +8,7 @@ import type {
 import type { ReportSort } from "./params";
 import type {
   CommentInput,
+  CreateReportRequest,
   ReportWriteupInput,
   TriageRequest,
 } from "./schemas";
@@ -28,6 +29,9 @@ export const reportEndpoints = {
   list: (query: ReportListQuery) =>
     listEndpoint<Report>({ path: "/reports", query: { ...query } }),
   detail: (id: string) => endpoint<Report>({ path: `/reports/${id}` }),
+  /** Researchers only, to an ACTIVE program; 10 per researcher per hour. */
+  create: (body: CreateReportRequest) =>
+    endpoint<Report>({ method: "POST", path: "/reports", body }),
   /** Researchers only, while NEW or NEEDS_INFO. A NEEDS_INFO edit goes back to triage. */
   update: (id: string, body: Partial<ReportWriteupInput>) =>
     endpoint<Report>({ method: "PATCH", path: `/reports/${id}`, body }),

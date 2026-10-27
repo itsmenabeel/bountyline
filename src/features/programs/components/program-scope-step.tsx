@@ -13,6 +13,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import { useDraftSync, type WizardStepProps } from "@/hooks/use-draft-sync";
 import { type ErrorTarget, useErrorSummary } from "@/hooks/use-error-summary";
 import { describedBy } from "@/lib/forms";
 import {
@@ -22,7 +23,6 @@ import {
   SCOPE_ASSET,
 } from "../schemas";
 import { ScopeListEditor } from "./scope-list-editor";
-import { useDraftSync, type WizardStepProps } from "./wizard-step";
 
 const LISTS = {
   inScope: { idPrefix: "scope-in", label: "In scope", row: "In-scope asset" },

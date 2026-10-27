@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 
-/** What ProgramWizard hands each of the first three steps. */
+/** What a wizard hands each of its form steps. */
 export interface WizardStepProps<T> {
   /** The draft's values for this step, as last typed. */
   values: T;

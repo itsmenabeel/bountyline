@@ -34,6 +34,52 @@ export const reportWriteupSchema = z.object({
 
 export type ReportWriteupInput = z.output<typeof reportWriteupSchema>;
 
+// ---- Submission wizard, step 1 ----
+
+/** The program picker and the scope confirmation (design-plan §9.1). */
+export const reportProgramSchema = z.object({
+  programId: z.string().min(1, "Pick the program your finding belongs to."),
+  inScope: z.boolean().refine((confirmed) => confirmed, {
+    error: "Confirm that your finding targets an in-scope asset.",
+  }),
+});
+
+export type ReportProgramValues = z.input<typeof reportProgramSchema>;
+
+/** POST /reports */
+export interface CreateReportRequest extends ReportWriteupInput {
+  programId: string;
+}
+
+/**
+ * Headings the write-up step can insert, in the order triage reads a report. Each free-text
+ * section has an empty line to type on with a blank line after it, so text typed under a
+ * heading stays a separate paragraph from the next one.
+ */
+export const REPORT_TEMPLATE = [
+  "## Summary",
+  "",
+  "",
+  "",
+  "## Steps to reproduce",
+  "",
+  "1. ",
+  "",
+  "## Impact",
+  "",
+  "",
+  "",
+  "## Suggested fix",
+  "",
+  "",
+].join("\n");
+
+/** The write-up with the template added: on its own if empty, else after a blank line. */
+export function withTemplate(description: string) {
+  const current = description.trimEnd();
+  return current ? `${current}\n\n${REPORT_TEMPLATE}` : REPORT_TEMPLATE;
+}
+
 export const commentSchema = z.object({
   body: z
     .string()

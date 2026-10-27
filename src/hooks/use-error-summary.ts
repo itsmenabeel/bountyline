@@ -24,7 +24,9 @@ function summarize<T extends FieldValues>(
 /**
  * Focus handling for a failed submit (design-plan §9.1): one error focuses its field, more
  * than one shows an ErrorSummary that takes focus. Pair with `shouldFocusError: false`. The
- * summary tracks the live errors, so it shrinks as the person fixes fields.
+ * summary tracks the live errors, so it shrinks as the person fixes fields. Once they're all
+ * fixed it stays closed until the next failed submit: an ErrorSummary focuses itself when it
+ * mounts, so reopening it on a blur error would pull focus out of the field being typed in.
  */
 export function useErrorSummary<T extends FieldValues>(
   // Pick, so forms whose resolver transforms their values fit too.
@@ -32,20 +34,34 @@ export function useErrorSummary<T extends FieldValues>(
   target: ErrorTarget,
 ) {
   const [attempt, setAttempt] = useState(0);
+  const [open, setOpen] = useState(false);
+  // RHF calls onInvalid before the errors reach formState, so the summary closes only after
+  // it has had errors to show.
+  const [shown, setShown] = useState(false);
   const live = summarize(form.formState.errors, target);
+
+  // Adjusting state during render (React's documented pattern), so it closes in one pass.
+  if (open && !shown && live.length > 0) setShown(true);
+  if (open && shown && live.length === 0) {
+    setOpen(false);
+    setShown(false);
+  }
 
   const onInvalid = (errors: FieldErrors<T>) => {
     const failed = summarize(errors, target);
     if (failed.length === 1 && failed[0]) {
+      setOpen(false);
       document.getElementById(failed[0].id)?.focus();
       return;
     }
+    setOpen(true);
+    setShown(false);
     setAttempt((count) => count + 1);
   };
 
   return {
-    /** Empty until a submit has failed with several errors. */
-    errors: attempt > 0 ? live : [],
+    /** Empty unless the last failed submit had several errors and some remain. */
+    errors: open ? live : [],
     attempt,
     onInvalid,
   };

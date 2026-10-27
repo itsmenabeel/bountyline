@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   commentSchema,
+  REPORT_TEMPLATE,
+  reportProgramSchema,
   reportWriteupSchema,
   toTriageRequest,
   triageSchema,
+  withTemplate,
 } from "./schemas";
 
 const firstMessage = (result: { error?: { issues: { message: string }[] } }) =>
@@ -108,5 +111,50 @@ describe("toTriageRequest", () => {
     expect(
       toTriageRequest({ status: "DUPLICATE", duplicateOfId: "abc", note: "" }),
     ).toEqual({ status: "DUPLICATE", duplicateOfId: "abc" });
+  });
+});
+
+describe("reportProgramSchema", () => {
+  const programId = "0b9c6a4e-6f0e-4c1a-9a51-2f4f1d9d2b11";
+
+  it("needs a program and the scope confirmation", () => {
+    expect(
+      reportProgramSchema.safeParse({ programId, inScope: true }).success,
+    ).toBe(true);
+    expect(
+      firstMessage(
+        reportProgramSchema.safeParse({ programId: "", inScope: true }),
+      ),
+    ).toBe("Pick the program your finding belongs to.");
+    expect(
+      firstMessage(
+        reportProgramSchema.safeParse({ programId, inScope: false }),
+      ),
+    ).toBe("Confirm that your finding targets an in-scope asset.");
+  });
+});
+
+describe("withTemplate", () => {
+  it("uses the template as the whole write-up when it's empty", () => {
+    expect(withTemplate("")).toBe(REPORT_TEMPLATE);
+    expect(withTemplate(" \n ")).toBe(REPORT_TEMPLATE);
+  });
+
+  it("adds the template after existing text, one blank line apart", () => {
+    expect(withTemplate("Found an XSS.\n\n\n")).toBe(
+      `Found an XSS.\n\n${REPORT_TEMPLATE}`,
+    );
+  });
+
+  it("lists the four sections triage reads, in order", () => {
+    const headings = REPORT_TEMPLATE.split("\n").filter((line) =>
+      line.startsWith("## "),
+    );
+    expect(headings).toEqual([
+      "## Summary",
+      "## Steps to reproduce",
+      "## Impact",
+      "## Suggested fix",
+    ]);
   });
 });

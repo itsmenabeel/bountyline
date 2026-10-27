@@ -1,14 +1,12 @@
 "use client";
 
-import { HistoryIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { LoadingFrame } from "@/components/shared/page-skeleton";
+import { DraftNotice } from "@/components/shared/draft-notice";
+import { WizardSkeleton } from "@/components/shared/page-skeleton";
 import { PendingLabel } from "@/components/shared/pending-label";
 import { WizardShell } from "@/components/shared/wizard-shell";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useRehydrated } from "@/hooks/use-rehydrated";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import {
   PROGRAM_WIZARD_STEPS,
@@ -35,22 +33,7 @@ const STEP_DESCRIPTION: Record<ProgramWizardStep, string> = {
 
 /** The step frame with grey blocks where the fields go, before the saved draft loads. */
 export function ProgramWizardSkeleton() {
-  return (
-    <LoadingFrame>
-      <div className="flex items-center gap-2">
-        {PROGRAM_WIZARD_STEPS.map((step) => (
-          <Skeleton key={step} className="h-7 flex-1 rounded-full" />
-        ))}
-      </div>
-      <div className="flex flex-col gap-2">
-        <Skeleton className="h-4 w-20" />
-        <Skeleton className="h-7 w-40" />
-        <Skeleton className="h-4 w-full max-w-sm" />
-      </div>
-      <Skeleton className="h-14 w-full" />
-      <Skeleton className="h-72 w-full" />
-    </LoadingFrame>
-  );
+  return <WizardSkeleton steps={PROGRAM_WIZARD_STEPS.length} />;
 }
 
 /**
@@ -60,23 +43,14 @@ export function ProgramWizardSkeleton() {
  * lose what was typed.
  */
 export function ProgramWizard() {
-  const [ready, setReady] = useState(false);
-  const [resumed, setResumed] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    void Promise.resolve(useProgramWizardStore.persist.rehydrate()).then(() => {
-      if (!active) return;
-      setResumed(draftHasContent(useProgramWizardStore.getState().draft));
-      setReady(true);
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
-
+  const ready = useRehydrated(useProgramWizardStore.persist);
   if (!ready) return <ProgramWizardSkeleton />;
-  return <WizardSteps resumed={resumed} />;
+  // Read once: WizardSteps keeps the first value, so typing doesn't bring the notice back.
+  return (
+    <WizardSteps
+      resumed={draftHasContent(useProgramWizardStore.getState().draft)}
+    />
+  );
 }
 
 function WizardSteps({ resumed }: { resumed: boolean }) {
@@ -140,29 +114,15 @@ function WizardSteps({ resumed }: { resumed: boolean }) {
   return (
     <div className="flex flex-col gap-6">
       {showResumed && (
-        // A plain notice: it shows on load, so an alert role would interrupt the page.
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border bg-card px-3 py-2 text-sm">
-          <p className="flex items-start gap-2 font-medium">
-            <HistoryIcon
-              aria-hidden="true"
-              className="mt-0.5 size-4 shrink-0"
-            />
-            You're picking up a draft from earlier in this tab.
-          </p>
-          <ConfirmDialog
-            trigger={<Button variant="outline">Start over</Button>}
-            title="Discard this draft?"
-            description="You'll lose the name, scope, and rewards you entered. You can't undo this."
-            confirmLabel="Discard draft"
-            pendingLabel="Discarding"
-            destructive
-            onConfirm={async () => {
-              reset();
-              setGeneration((count) => count + 1);
-              setShowResumed(false);
-            }}
-          />
-        </div>
+        <DraftNotice
+          message="You're picking up a draft from earlier in this tab."
+          discardDescription="You'll lose the name, scope, and rewards you entered. You can't undo this."
+          onDiscard={() => {
+            reset();
+            setGeneration((count) => count + 1);
+            setShowResumed(false);
+          }}
+        />
       )}
 
       <WizardShell

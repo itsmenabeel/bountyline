@@ -22,7 +22,7 @@ import { QueryError } from "@/components/shared/query-error";
 import { SeverityBadge } from "@/components/shared/severity-badge";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
-import { directoryQuery } from "@/features/programs/queries";
+import { programOptionsQuery } from "@/features/programs/queries";
 import { useListParams } from "@/hooks/use-list-params";
 import {
   OPEN_REPORT_STATUSES,
@@ -72,16 +72,6 @@ const SEVERITY_OPTIONS: FilterOption<Severity>[] = SEVERITIES.map(
   (severity) => ({ value: severity, label: SEVERITY_LABEL[severity] }),
 );
 
-// The program filter offers the programs the viewer can open, by title. The backend caps a
-// page at 50, which covers every program on the platform today.
-const PROGRAM_OPTIONS_QUERY = directoryQuery("signed-in", {
-  page: 1,
-  limit: 50,
-  sortBy: "title",
-  order: "asc",
-  search: undefined,
-});
-
 /**
  * Reports with status tabs, severity and program filters, a title search, and sortable
  * dates, all in the URL. The backend scopes the rows: a researcher sees only their own, an
@@ -97,7 +87,7 @@ export function ReportTable({ variant }: { variant: ReportTableVariant }) {
     ...clientQuery(reportListQuery(params)),
     placeholderData: keepPreviousData,
   });
-  const programs = useQuery(clientQuery(PROGRAM_OPTIONS_QUERY));
+  const programs = useQuery(clientQuery(programOptionsQuery()));
   const programOptions = useMemo<FilterOption[]>(
     () =>
       (programs.data?.items ?? []).map((program) => ({

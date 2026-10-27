@@ -94,3 +94,27 @@ export function ListPageSkeleton({ tabs = false }: { tabs?: boolean }) {
     </LoadingFrame>
   );
 }
+
+/**
+ * A wizard before its saved draft loads: the step markers, "Step n of N" and heading, and
+ * two field blocks.
+ */
+export function WizardSkeleton({ steps }: { steps: number }) {
+  return (
+    <LoadingFrame>
+      <div className="flex items-center gap-2">
+        {Array.from({ length: steps }, (_, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: fixed placeholders that never reorder.
+          <Skeleton key={index} className="h-7 flex-1 rounded-full" />
+        ))}
+      </div>
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-7 w-40" />
+        <Skeleton className="h-4 w-full max-w-sm" />
+      </div>
+      <Skeleton className="h-14 w-full" />
+      <Skeleton className="h-72 w-full" />
+    </LoadingFrame>
+  );
+}

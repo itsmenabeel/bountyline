@@ -43,3 +43,18 @@ export function programTableQuery(
     programEndpoints.list({ ...params, mine: scope === "mine" }),
   );
 }
+
+/**
+ * The programs a signed-in viewer can open, by title, for pickers and filters: ACTIVE ones
+ * for researchers, all of them for admins. The backend caps a page at 50, which covers every
+ * program on the platform today; past that, pickers would need a server-side search.
+ */
+export function programOptionsQuery() {
+  return directoryQuery("signed-in", {
+    page: 1,
+    limit: 50,
+    sortBy: "title",
+    order: "asc",
+    search: undefined,
+  });
+}

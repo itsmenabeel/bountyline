@@ -18,6 +18,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useDraftSync, type WizardStepProps } from "@/hooks/use-draft-sync";
 import { type ErrorTarget, useErrorSummary } from "@/hooks/use-error-summary";
 import { describedBy } from "@/lib/forms";
 import {
@@ -25,7 +26,6 @@ import {
   type ProgramBasicsValues,
   programBasicsSchema,
 } from "../schemas";
-import { useDraftSync, type WizardStepProps } from "./wizard-step";
 
 const target: ErrorTarget = (path) =>
   path.startsWith("description")

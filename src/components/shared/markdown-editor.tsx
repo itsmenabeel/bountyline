@@ -2,7 +2,7 @@
 
 import { cn } from "cn";
 import dynamic from "next/dynamic";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,12 +23,15 @@ export function MarkdownEditor({
   tab,
   onTabChange,
   value,
+  toolbar,
   className,
   ...textarea
 }: ComponentProps<typeof Textarea> & {
   tab: MarkdownTab;
   onTabChange: (tab: MarkdownTab) => void;
   value: string;
+  /** Extra controls on the right of the Write/Preview switch. */
+  toolbar?: ReactNode;
 }) {
   return (
     <Tabs
@@ -36,10 +39,13 @@ export function MarkdownEditor({
       onValueChange={(next) => onTabChange(next as MarkdownTab)}
       className="gap-3"
     >
-      <TabsList>
-        <TabsTrigger value="write">Write</TabsTrigger>
-        <TabsTrigger value="preview">Preview</TabsTrigger>
-      </TabsList>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <TabsList>
+          <TabsTrigger value="write">Write</TabsTrigger>
+          <TabsTrigger value="preview">Preview</TabsTrigger>
+        </TabsList>
+        {toolbar}
+      </div>
       {/* Kept mounted while Preview shows, so the label and error focus still have a
           textarea to point at. */}
       <TabsContent

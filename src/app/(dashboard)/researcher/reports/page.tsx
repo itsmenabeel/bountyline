@@ -1,5 +1,8 @@
+import { SendHorizontal } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
+import { Button } from "@/components/ui/button";
 import { ReportTable } from "@/features/reports/components/report-table";
 import { reportListParams } from "@/features/reports/params";
 import { reportListQuery } from "@/features/reports/queries";
@@ -18,6 +21,14 @@ export default async function ResearcherReportsPage({
       <PageHeader
         title="My reports"
         description="Every report you've submitted and where it stands in triage."
+        actions={
+          <Button asChild size="lg">
+            <Link href="/researcher/reports/new">
+              <SendHorizontal aria-hidden="true" />
+              Submit a report
+            </Link>
+          </Button>
+        }
       />
       <HydrateClient>
         <ReportTable variant="researcher" />

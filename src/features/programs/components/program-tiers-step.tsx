@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { ErrorSummary } from "@/components/shared/error-summary";
 import { WizardActions } from "@/components/shared/wizard-shell";
 import { Button } from "@/components/ui/button";
+import { useDraftSync, type WizardStepProps } from "@/hooks/use-draft-sync";
 import { type ErrorTarget, useErrorSummary } from "@/hooks/use-error-summary";
 import { SEVERITY_LABEL } from "@/lib/constants/domain";
 import { formatMoney } from "@/lib/money";
@@ -15,7 +16,6 @@ import {
   TIER_AMOUNT,
 } from "../schemas";
 import { TierEditor, tierInputId } from "./tier-editor";
-import { useDraftSync, type WizardStepProps } from "./wizard-step";
 
 const target: ErrorTarget = (path) => {
   const severity = SEVERITIES[Number(path.split(".")[1])];
