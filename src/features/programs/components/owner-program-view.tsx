@@ -5,6 +5,7 @@ import { useState } from "react";
 import { PendingLabel } from "@/components/shared/pending-label";
 import { QueryError } from "@/components/shared/query-error";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FundDialog } from "@/features/payments/components/fund-dialog";
 import { clientQuery } from "@/lib/query/descriptor";
 import type { OwnerProgramTab } from "../owner-tabs";
 import { programDetailQuery } from "../queries";
@@ -84,7 +85,12 @@ export function OwnerProgramView({
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
-          <ProgramOverview program={program} />
+          <ProgramOverview
+            program={program}
+            action={
+              program.status !== "CLOSED" && <FundDialog program={program} />
+            }
+          />
         </TabsContent>
         <TabsContent
           value="settings"
