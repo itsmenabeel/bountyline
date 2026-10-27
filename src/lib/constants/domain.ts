@@ -79,6 +79,17 @@ export function triageTargets(status: ReportStatus): TriageTarget[] {
   );
 }
 
+/** Legal program status changes (backend PROGRAM_TRANSITIONS). CLOSED is final. */
+export const PROGRAM_TRANSITIONS: Record<
+  ProgramStatus,
+  readonly Exclude<ProgramStatus, "DRAFT">[]
+> = {
+  DRAFT: ["ACTIVE", "CLOSED"],
+  ACTIVE: ["PAUSED", "CLOSED"],
+  PAUSED: ["ACTIVE", "CLOSED"],
+  CLOSED: [],
+};
+
 /** Reports still moving through triage (dashboard "open reports"). */
 export const OPEN_REPORT_STATUSES = [
   "NEW",

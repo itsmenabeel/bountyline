@@ -1,5 +1,6 @@
 import type { z } from "zod";
 import { describeQuery } from "@/lib/query/descriptor";
+import type { ReportStatus } from "@/types/api";
 import { reportEndpoints } from "./endpoints";
 import type { reportListParams } from "./params";
 
@@ -18,4 +19,22 @@ export const reportKeys = {
 
 export function reportListQuery(params: ReportListParams) {
   return describeQuery(reportKeys.list(params), reportEndpoints.list(params));
+}
+
+/**
+ * How many reports a program has in one status: a page of one, read for `meta.total`. Under
+ * `lists()`, so every report mutation that refreshes lists refreshes these too.
+ */
+export function reportCountQuery(programId: string, status: ReportStatus) {
+  return describeQuery(
+    [...reportKeys.lists(), "count", programId, status],
+    reportEndpoints.list({
+      page: 1,
+      limit: 1,
+      sortBy: "createdAt",
+      order: "desc",
+      status,
+      programId,
+    }),
+  );
 }

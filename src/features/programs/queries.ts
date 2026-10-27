@@ -18,7 +18,13 @@ export const programKeys = {
     [...programKeys.lists(), "directory", source, params] as const,
   table: (scope: ProgramTableScope, params: ProgramTableParams) =>
     [...programKeys.lists(), "table", scope, params] as const,
+  detail: (id: string) => [...programKeys.all, "detail", id] as const,
 };
+
+/** One program as a signed-in viewer sees it (owners and admins see every status). */
+export function programDetailQuery(id: string) {
+  return describeQuery(programKeys.detail(id), programEndpoints.detail(id));
+}
 
 export function directoryQuery(
   source: DirectorySource,

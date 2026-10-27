@@ -1,8 +1,22 @@
+import type { MouseEvent } from "react";
 import type { FieldErrors, FieldValues } from "react-hook-form";
 
 /** Joins the ids that describe a field, skipping the ones that don't apply right now. */
 export const describedBy = (...ids: (string | false | undefined)[]) =>
   ids.filter(Boolean).join(" ") || undefined;
+
+/**
+ * `onMouseDown` for the row holding a form's submit button. Pressing the button blurs the
+ * field being edited, and with `mode: "onTouched"` that field's error can render before the
+ * button is released, pushing the button down so the release misses it and the click never
+ * fires. Keeping focus in the field until the click avoids the shift; the submit then
+ * validates every field and moves focus itself.
+ */
+export function holdFocusOnSubmit(event: MouseEvent<HTMLElement>) {
+  if ((event.target as Element).closest("button[type=submit]")) {
+    event.preventDefault();
+  }
+}
 
 export interface FlatFieldError {
   /** Dotted path, e.g. "inScope.2.value", or "inScope.root" for the list itself. */

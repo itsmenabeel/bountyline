@@ -27,6 +27,12 @@ export const programEndpoints = {
   /** Owners only. New programs start as DRAFT with no tiers. */
   create: (body: CreateProgramRequest) =>
     endpoint<Program>({ method: "POST", path: "/programs", body }),
+  /** Owners only, before CLOSED. A new `scope` replaces the old one whole. */
+  update: (id: string, body: Partial<CreateProgramRequest>) =>
+    endpoint<Program>({ method: "PATCH", path: `/programs/${id}`, body }),
+  /** Owners only, with an empty pool and no open reports (soft delete). */
+  remove: (id: string) =>
+    endpoint<void>({ method: "DELETE", path: `/programs/${id}` }),
   /** Upserts each listed tier; tiers left out of the list stay as they were. */
   setRewardTiers: (id: string, tiers: RewardTier[]) =>
     endpoint<Program>({

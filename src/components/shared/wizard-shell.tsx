@@ -2,8 +2,9 @@
 
 import { cn } from "cn";
 import { CheckIcon } from "lucide-react";
-import { type MouseEvent, type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { holdFocusOnSubmit } from "@/lib/forms";
 
 /**
  * A multi-step form's frame (design-plan §8): the step list, "Step 2 of 4" over the step's
@@ -128,18 +129,6 @@ export function WizardShell({
       </section>
     </div>
   );
-}
-
-/**
- * Pressing a submit button blurs the field being edited, and with `mode: "onTouched"` that
- * field's error can render before the button is released, pushing the button down so the
- * release misses it and the click never fires. Keeping focus in the field until the click
- * avoids the shift; the submit then validates every field and moves focus itself.
- */
-function holdFocusOnSubmit(event: MouseEvent<HTMLDivElement>) {
-  if ((event.target as Element).closest("button[type=submit]")) {
-    event.preventDefault();
-  }
 }
 
 /** Back on the left, the step's forward action on the right; stacked on phones. */
