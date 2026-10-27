@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { describedBy } from "@/lib/forms";
 import { googleLogin, register } from "../actions";
 import { registerSchema, type SignupRole } from "../schemas";
 import { useAuthAction } from "../use-auth-action";
@@ -58,8 +59,6 @@ const JOINS_AS: Record<SignupRole, string> = {
 };
 
 /** Points a control at its error message only while there is one. */
-const describedBy = (...ids: (string | false | undefined)[]) =>
-  ids.filter(Boolean).join(" ") || undefined;
 
 export function RegisterForm() {
   const { running, isPending, run } = useAuthAction<"form" | "google">();

@@ -38,6 +38,7 @@ import {
   type TriageTarget,
   triageTargets,
 } from "@/lib/constants/domain";
+import { describedBy } from "@/lib/forms";
 import { formatMoney } from "@/lib/money";
 import type { Cents, Program, Report, Severity } from "@/types/api";
 import { reportEndpoints } from "../endpoints";
@@ -94,9 +95,6 @@ function failureMessage(error: ApiError) {
   }
   return error.userMessage;
 }
-
-const describedBy = (...ids: (string | false | undefined)[]) =>
-  ids.filter(Boolean).join(" ") || undefined;
 
 /** The pool line under the severity: what accepting commits the program to pay. */
 function PayoutPreview({

@@ -2,13 +2,16 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { type Failure, FailureAlert } from "@/components/shared/failure-alert";
+import {
+  MarkdownEditor,
+  type MarkdownTab,
+} from "@/components/shared/markdown-editor";
 import { PendingLabel } from "@/components/shared/pending-label";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,11 +22,9 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { clientRequest } from "@/lib/api/client";
 import type { ApiError } from "@/lib/api/errors";
+import { describedBy } from "@/lib/forms";
 import type { Report } from "@/types/api";
 import { reportEndpoints } from "../endpoints";
 import { reportKeys } from "../queries";
@@ -34,16 +35,7 @@ import {
   reportWriteupSchema,
 } from "../schemas";
 
-// The preview pulls in the Markdown renderer, so it loads only when someone opens the tab.
-const MarkdownView = dynamic(
-  () => import("@/components/shared/markdown-view").then((m) => m.MarkdownView),
-  { loading: () => <Skeleton className="h-24 w-full" /> },
-);
-
 const FIELDS = ["title", "description"] as const;
-
-const describedBy = (...ids: (string | false | undefined)[]) =>
-  ids.filter(Boolean).join(" ") || undefined;
 
 /** The backend's 409 names a raw status; this says what happened and what to do. */
 function failureMessage(error: ApiError) {
@@ -69,14 +61,13 @@ export function ReportEditForm({
   const [failure, setFailure] = useState<Failure | null>(null);
   const attempts = useRef(0);
   const needsInfo = report.status === "NEEDS_INFO";
-  const [tab, setTab] = useState("write");
+  const [tab, setTab] = useState<MarkdownTab>("write");
 
   const form = useForm({
     resolver: zodResolver(reportWriteupSchema),
     mode: "onTouched",
     defaultValues: { title: report.title, description: report.description },
   });
-  const description = useWatch({ control: form.control, name: "description" });
 
   const save = useMutation({
     mutationFn: (values: ReportWriteupInput) =>
@@ -147,43 +138,19 @@ export function ReportEditForm({
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="report-description">Write-up</FieldLabel>
-              <Tabs value={tab} onValueChange={setTab} className="gap-3">
-                <TabsList>
-                  <TabsTrigger value="write">Write</TabsTrigger>
-                  <TabsTrigger value="preview">Preview</TabsTrigger>
-                </TabsList>
-                {/* Kept mounted while Preview shows, so the label and error focus still
-                    have a textarea to point at. */}
-                <TabsContent
-                  value="write"
-                  forceMount
-                  className="data-[state=inactive]:hidden"
-                >
-                  <Textarea
-                    {...field}
-                    id="report-description"
-                    rows={16}
-                    className="min-h-80 font-mono md:pointer-fine:text-sm"
-                    aria-invalid={fieldState.invalid}
-                    aria-describedby={describedBy(
-                      "report-description-help",
-                      fieldState.error && "report-description-error",
-                    )}
-                  />
-                </TabsContent>
-                <TabsContent
-                  value="preview"
-                  className="min-h-40 rounded-lg border bg-card p-4"
-                >
-                  {description.trim() ? (
-                    <MarkdownView source={description} />
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Nothing to preview yet.
-                    </p>
-                  )}
-                </TabsContent>
-              </Tabs>
+              <MarkdownEditor
+                {...field}
+                tab={tab}
+                onTabChange={setTab}
+                id="report-description"
+                rows={16}
+                className="min-h-80"
+                aria-invalid={fieldState.invalid}
+                aria-describedby={describedBy(
+                  "report-description-help",
+                  fieldState.error && "report-description-error",
+                )}
+              />
               <FieldDescription id="report-description-help">
                 Markdown works here. Cover the steps to reproduce and the
                 impact, in at least {REPORT_DESCRIPTION.min} characters.

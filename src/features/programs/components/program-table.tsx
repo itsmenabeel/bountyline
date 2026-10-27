@@ -175,7 +175,17 @@ export function ProgramTable({
                   }
                 />
               ) : (
-                <EmptyState icon={FolderKanban} {...EMPTY_COPY[scope]} />
+                <EmptyState
+                  icon={FolderKanban}
+                  {...EMPTY_COPY[scope]}
+                  action={
+                    scope === "mine" ? (
+                      <Button asChild>
+                        <Link href="/owner/programs/new">New program</Link>
+                      </Button>
+                    ) : undefined
+                  }
+                />
               )
             }
           />

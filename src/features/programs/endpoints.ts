@@ -1,6 +1,7 @@
 import { endpoint, listEndpoint } from "@/lib/api/request";
-import type { Program, ProgramStatus } from "@/types/api";
+import type { Program, ProgramStatus, RewardTier } from "@/types/api";
 import type { ProgramSort } from "./params";
+import type { CreateProgramRequest } from "./schemas";
 
 export interface ProgramListQuery {
   page: number;
@@ -23,6 +24,23 @@ export const programEndpoints = {
       query: { ...query, mine: mine || undefined },
     }),
   detail: (id: string) => endpoint<Program>({ path: `/programs/${id}` }),
+  /** Owners only. New programs start as DRAFT with no tiers. */
+  create: (body: CreateProgramRequest) =>
+    endpoint<Program>({ method: "POST", path: "/programs", body }),
+  /** Upserts each listed tier; tiers left out of the list stay as they were. */
+  setRewardTiers: (id: string, tiers: RewardTier[]) =>
+    endpoint<Program>({
+      method: "PUT",
+      path: `/programs/${id}/reward-tiers`,
+      body: { tiers },
+    }),
+  /** ACTIVE needs at least one tier; the backend checks the transition. */
+  changeStatus: (id: string, status: Exclude<ProgramStatus, "DRAFT">) =>
+    endpoint<Program>({
+      method: "PATCH",
+      path: `/programs/${id}/status`,
+      body: { status },
+    }),
   /** Signed-out directory (backend change B1): ACTIVE programs only. */
   publicList: (query: PublicProgramListQuery) =>
     listEndpoint<Program>({ path: "/public/programs", query: { ...query } }),
