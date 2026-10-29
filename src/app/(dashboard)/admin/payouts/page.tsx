@@ -24,7 +24,7 @@ export default async function AdminPayoutsPage({
         description="Rewards paid from program pools to researchers, newest first."
       />
       <HydrateClient>
-        <PayoutTable />
+        <PayoutTable variant="admin" />
       </HydrateClient>
     </>
   );

@@ -118,3 +118,27 @@ export function WizardSkeleton({ steps }: { steps: number }) {
     </LoadingFrame>
   );
 }
+
+const STATS = ["a", "b", "c", "d"] as const;
+
+/** An overview page: title, a row of four stat cards, and two content blocks. */
+export function OverviewSkeleton() {
+  return (
+    <LoadingFrame>
+      <HeaderSkeleton />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {STATS.map((stat) => (
+          <div
+            key={stat}
+            className="flex flex-col gap-2 rounded-xl border bg-card p-4"
+          >
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-7 w-20" />
+          </div>
+        ))}
+      </div>
+      <Skeleton className="h-48 w-full rounded-xl" />
+      <Skeleton className="h-48 w-full rounded-xl" />
+    </LoadingFrame>
+  );
+}

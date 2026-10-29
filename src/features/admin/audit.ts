@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  ACCOUNT_ROLE_LABEL,
   PROGRAM_STATUS_LABEL,
   REPORT_STATUS_LABEL,
   SEVERITY_LABEL,
@@ -12,7 +13,6 @@ import {
   ROLES,
   SEVERITIES,
 } from "@/types/api";
-import { USER_ROLE_LABEL } from "./users";
 
 // Every action the backend writes to the audit log (writeAudit calls in its services).
 export const AUDIT_ACTIONS = [
@@ -106,7 +106,7 @@ function describe(action: AuditAction, metadata: unknown): string | null {
     case "ROLE_UPDATED": {
       const move = roleMove.safeParse(metadata);
       if (!move.success) return null;
-      return `${USER_ROLE_LABEL[move.data.from]} to ${USER_ROLE_LABEL[move.data.to]}.`;
+      return `${ACCOUNT_ROLE_LABEL[move.data.from]} to ${ACCOUNT_ROLE_LABEL[move.data.to]}.`;
     }
     case "USER_BANNED": {
       const parsed = ban.safeParse(metadata);

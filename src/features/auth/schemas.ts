@@ -48,13 +48,16 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Enter your password."),
 });
 
+/** A display name, 2 to 100 characters (backend register and PATCH /users/me). */
+export const nameSchema = z
+  .string()
+  .trim()
+  .min(1, { error: "Enter your name.", abort: true })
+  .min(2, "Enter at least 2 characters.")
+  .max(100, "Use 100 characters or fewer.");
+
 export const registerSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, { error: "Enter your name.", abort: true })
-    .min(2, "Enter at least 2 characters.")
-    .max(100, "Use 100 characters or fewer."),
+  name: nameSchema,
   email,
   password: z
     .string()

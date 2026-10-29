@@ -42,6 +42,7 @@ import { programKeys } from "@/features/programs/queries";
 import { clientRequest } from "@/lib/api/client";
 import type { ApiError } from "@/lib/api/errors";
 import type { Paginated } from "@/lib/api/types";
+import { ACCOUNT_ROLE_LABEL } from "@/lib/constants/domain";
 import { describedBy } from "@/lib/forms";
 import {
   ROLES,
@@ -59,7 +60,6 @@ import {
   ROLE_NOUN,
   roleChangeText,
   statusDoneText,
-  USER_ROLE_LABEL,
   userChangeFailure,
 } from "../users";
 
@@ -293,7 +293,7 @@ function RoleDialog({
               <SelectContent>
                 {choices.map((option) => (
                   <SelectItem key={option} value={option}>
-                    {USER_ROLE_LABEL[option]}
+                    {ACCOUNT_ROLE_LABEL[option]}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -52,16 +52,6 @@ export function userChangeFailure(error: ApiError, action: "role" | "status") {
   return `We couldn't ${what}. ${error.userMessage}`;
 }
 
-/**
- * Role names on the users page. Comments call admins "Triage team" (ROLE_LABEL), but here
- * the admin is managing accounts, and the account type reads plainer.
- */
-export const USER_ROLE_LABEL: Record<Role, string> = {
-  RESEARCHER: "Researcher",
-  PROGRAM_OWNER: "Program owner",
-  ADMIN: "Admin",
-};
-
 export const ROLE_NOUN: Record<Role, string> = {
   RESEARCHER: "a researcher",
   PROGRAM_OWNER: "a program owner",

@@ -22,7 +22,10 @@ import { QueryError } from "@/components/shared/query-error";
 import { SeverityBadge } from "@/components/shared/severity-badge";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
-import { programOptionsQuery } from "@/features/programs/queries";
+import {
+  ownerProgramOptionsQuery,
+  programOptionsQuery,
+} from "@/features/programs/queries";
 import { useListParams } from "@/hooks/use-list-params";
 import {
   OPEN_REPORT_STATUSES,
@@ -48,7 +51,7 @@ import {
 import { reportListQuery } from "../queries";
 import { DisclosureTrack } from "./disclosure-track";
 
-export type ReportTableVariant = "researcher" | "admin";
+export type ReportTableVariant = "researcher" | "owner" | "admin";
 
 const statusOptions = (statuses: readonly ReportStatus[]) =>
   statuses.map((status) => ({
@@ -61,11 +64,13 @@ const statusOptions = (statuses: readonly ReportStatus[]) =>
 const STATUS_OPTIONS: Record<ReportTableVariant, FilterOption<ReportStatus>[]> =
   {
     researcher: statusOptions(REPORT_STATUSES),
+    owner: statusOptions(REPORT_STATUSES),
     admin: statusOptions(OPEN_REPORT_STATUSES),
   };
 
 const BASE_PATH: Record<ReportTableVariant, string> = {
   researcher: "/researcher/reports",
+  owner: "/owner/reports",
   admin: "/admin/reports",
 };
 const SEVERITY_OPTIONS: FilterOption<Severity>[] = SEVERITIES.map(
@@ -75,7 +80,8 @@ const SEVERITY_OPTIONS: FilterOption<Severity>[] = SEVERITIES.map(
 /**
  * Reports with status tabs, severity and program filters, a title search, and sortable
  * dates, all in the URL. The backend scopes the rows: a researcher sees only their own, an
- * admin sees every report (the triage queue, oldest first).
+ * owner sees reports on their programs, and an admin sees every report (the triage queue,
+ * oldest first).
  */
 export function ReportTable({ variant }: { variant: ReportTableVariant }) {
   const isAdmin = variant === "admin";
@@ -87,7 +93,12 @@ export function ReportTable({ variant }: { variant: ReportTableVariant }) {
     ...clientQuery(reportListQuery(params)),
     placeholderData: keepPreviousData,
   });
-  const programs = useQuery(clientQuery(programOptionsQuery()));
+  // Owners filter by their own programs in every status; the directory lists ACTIVE ones.
+  const programs = useQuery(
+    clientQuery(
+      variant === "owner" ? ownerProgramOptionsQuery() : programOptionsQuery(),
+    ),
+  );
   const programOptions = useMemo<FilterOption[]>(
     () =>
       (programs.data?.items ?? []).map((program) => ({
@@ -148,9 +159,24 @@ export function ReportTable({ variant }: { variant: ReportTableVariant }) {
       cell: (report) => <SeverityBadge severity={report.severity} />,
     };
 
+    const researcher: DataTableColumn<Report, ReportSort> = {
+      id: "researcher",
+      header: "Researcher",
+      className: "whitespace-nowrap",
+      cell: (report) => (
+        <div className="flex flex-col gap-0.5">
+          <span>{report.researcher.name}</span>
+          <span className="text-xs text-muted-foreground">
+            Reputation {report.researcher.reputation.toLocaleString("en-US")}
+          </span>
+        </div>
+      ),
+    };
+
     if (!isAdmin) {
       return [
         title,
+        ...(variant === "owner" ? [researcher] : []),
         status,
         severity,
         {
@@ -178,19 +204,7 @@ export function ReportTable({ variant }: { variant: ReportTableVariant }) {
         className: "whitespace-nowrap font-mono text-xs text-muted-foreground",
         cell: (report) => shortId(report.id, "R"),
       },
-      {
-        id: "researcher",
-        header: "Researcher",
-        className: "whitespace-nowrap",
-        cell: (report) => (
-          <div className="flex flex-col gap-0.5">
-            <span>{report.researcher.name}</span>
-            <span className="text-xs text-muted-foreground">
-              Reputation {report.researcher.reputation.toLocaleString("en-US")}
-            </span>
-          </div>
-        ),
-      },
+      researcher,
       severity,
       status,
       {
@@ -208,7 +222,7 @@ export function ReportTable({ variant }: { variant: ReportTableVariant }) {
         ),
       },
     ];
-  }, [basePath, isAdmin]);
+  }, [basePath, isAdmin, variant]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -272,6 +286,12 @@ export function ReportTable({ variant }: { variant: ReportTableVariant }) {
                   icon={Inbox}
                   title="No reports yet."
                   description="Reports show here as researchers submit them."
+                />
+              ) : variant === "owner" ? (
+                <EmptyState
+                  icon={Inbox}
+                  title="No reports on your programs yet."
+                  description="Reports show here once researchers submit to one of your active programs."
                 />
               ) : (
                 <EmptyState

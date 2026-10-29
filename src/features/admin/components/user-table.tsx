@@ -22,6 +22,7 @@ import { QueryError } from "@/components/shared/query-error";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { useListParams } from "@/hooks/use-list-params";
+import { ACCOUNT_ROLE_LABEL } from "@/lib/constants/domain";
 import { formatDate } from "@/lib/format";
 import { hasActiveFilters } from "@/lib/list-params";
 import { clientQuery } from "@/lib/query/descriptor";
@@ -32,12 +33,11 @@ import {
   userListParams,
 } from "../params";
 import { userListQuery } from "../queries";
-import { USER_ROLE_LABEL } from "../users";
 import { UserActions } from "./user-actions";
 
 const ROLE_OPTIONS: FilterOption<Role>[] = ROLES.map((role) => ({
   value: role,
-  label: USER_ROLE_LABEL[role],
+  label: ACCOUNT_ROLE_LABEL[role],
 }));
 
 const STATUS_OPTIONS: FilterOption<UserStatusFilter>[] = [
@@ -96,7 +96,7 @@ export function UserTable() {
         id: "role",
         header: "Role",
         className: "whitespace-nowrap",
-        cell: (user) => USER_ROLE_LABEL[user.role],
+        cell: (user) => ACCOUNT_ROLE_LABEL[user.role],
       },
       {
         id: "reputation",

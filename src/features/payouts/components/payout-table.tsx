@@ -30,18 +30,24 @@ import { payoutListQuery } from "../queries";
 
 const linkClass = "font-medium text-pretty underline-offset-4 hover:underline";
 
+export type PayoutTableVariant = "admin" | "researcher";
+
 /**
- * Every payout on the platform for admins (design-plan §7.5): report, program, researcher,
- * amount, and date, with a program filter and sorting by amount or date. A payout is paid
- * the moment it exists, so the table has no status column.
+ * Payouts, sortable by amount or date (design-plan §7.3, §7.5). Admins see every payout
+ * with its researcher and a program filter; a researcher sees their own, with links to
+ * their report pages. A payout is paid the moment it exists, so there's no status column.
  */
-export function PayoutTable() {
+export function PayoutTable({ variant }: { variant: PayoutTableVariant }) {
+  const isAdmin = variant === "admin";
   const { params, defaults, setParams } = useListParams(payoutListParams);
   const query = useQuery({
     ...clientQuery(payoutListQuery(params)),
     placeholderData: keepPreviousData,
   });
-  const programs = useQuery(clientQuery(programOptionsQuery()));
+  const programs = useQuery({
+    ...clientQuery(programOptionsQuery()),
+    enabled: isAdmin,
+  });
   const programOptions = useMemo<FilterOption[]>(
     () =>
       (programs.data?.items ?? []).map((program) => ({
@@ -53,15 +59,21 @@ export function PayoutTable() {
   const filtered = hasActiveFilters(params, defaults);
   const clear = () => setParams({ programId: undefined });
 
-  const columns = useMemo<DataTableColumn<Payout, PayoutSort>[]>(
-    () => [
+  const columns = useMemo<DataTableColumn<Payout, PayoutSort>[]>(() => {
+    const researcher: DataTableColumn<Payout, PayoutSort> = {
+      id: "researcher",
+      header: "Researcher",
+      className: "whitespace-nowrap",
+      cell: (payout) => payout.researcher.name,
+    };
+    return [
       {
         id: "report",
         header: "Report",
         className: "min-w-56 max-w-80",
         cell: (payout) => (
           <Link
-            href={`/admin/reports/${payout.report.id}`}
+            href={`/${variant}/reports/${payout.report.id}`}
             className={linkClass}
           >
             {payout.report.title}
@@ -72,21 +84,20 @@ export function PayoutTable() {
         id: "program",
         header: "Program",
         className: "min-w-44",
-        cell: (payout) => (
-          <Link
-            href={`/admin/programs/${payout.program.id}`}
-            className="text-pretty underline-offset-4 hover:underline"
-          >
-            {payout.program.title}
-          </Link>
-        ),
+        // A researcher's program page opens only while the program is ACTIVE.
+        cell: (payout) =>
+          isAdmin ? (
+            <Link
+              href={`/admin/programs/${payout.program.id}`}
+              className="text-pretty underline-offset-4 hover:underline"
+            >
+              {payout.program.title}
+            </Link>
+          ) : (
+            <span className="text-pretty">{payout.program.title}</span>
+          ),
       },
-      {
-        id: "researcher",
-        header: "Researcher",
-        className: "whitespace-nowrap",
-        cell: (payout) => payout.researcher.name,
-      },
+      ...(isAdmin ? [researcher] : []),
       {
         id: "amount",
         header: "Amount",
@@ -101,23 +112,24 @@ export function PayoutTable() {
         className: "whitespace-nowrap text-muted-foreground",
         cell: (payout) => formatDate(payout.createdAt),
       },
-    ],
-    [],
-  );
+    ];
+  }, [isAdmin, variant]);
 
   return (
     <div className="flex flex-col gap-4">
-      <FilterBar label="Filter payouts">
-        <SelectFilter
-          id="payout-program"
-          label="Program"
-          allLabel="All programs"
-          options={programOptions}
-          value={params.programId}
-          onChange={(programId) => setParams({ programId })}
-        />
-        <ClearFiltersButton visible={filtered} onClear={clear} />
-      </FilterBar>
+      {isAdmin && (
+        <FilterBar label="Filter payouts">
+          <SelectFilter
+            id="payout-program"
+            label="Program"
+            allLabel="All programs"
+            options={programOptions}
+            value={params.programId}
+            onChange={(programId) => setParams({ programId })}
+          />
+          <ClearFiltersButton visible={filtered} onClear={clear} />
+        </FilterBar>
+      )}
 
       {query.data ? (
         <>
@@ -143,8 +155,14 @@ export function PayoutTable() {
               ) : (
                 <EmptyState
                   icon={Coins}
-                  title="No payouts yet."
-                  description="Payouts show here once the triage team pays an accepted report."
+                  title={
+                    isAdmin ? "No payouts yet." : "You haven't been paid yet."
+                  }
+                  description={
+                    isAdmin
+                      ? "Payouts show here once the triage team pays an accepted report."
+                      : "Each report the triage team accepts and pays shows here."
+                  }
                 />
               )
             }

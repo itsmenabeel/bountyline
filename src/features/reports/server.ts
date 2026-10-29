@@ -4,7 +4,7 @@ import { cache } from "react";
 import { payoutEndpoints } from "@/features/payouts/endpoints";
 import { serverRequest } from "@/lib/api/server";
 import { isUuid } from "@/lib/ids";
-import type { Report } from "@/types/api";
+import type { Report, ReportStatus } from "@/types/api";
 import { reportEndpoints } from "./endpoints";
 
 /**
@@ -33,4 +33,18 @@ export async function getPayoutAmount(report: Report) {
     }),
   );
   return items.find((payout) => payout.report.id === report.id)?.amount;
+}
+
+/** How many of the viewer's reports (scoped by the backend) sit in one status: a page of one. */
+export async function countReports(status: ReportStatus) {
+  const { meta } = await serverRequest(
+    reportEndpoints.list({
+      page: 1,
+      limit: 1,
+      sortBy: "createdAt",
+      order: "desc",
+      status,
+    }),
+  );
+  return meta.total;
 }

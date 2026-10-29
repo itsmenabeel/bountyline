@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { coverageText, poolCoverage } from "./pool-coverage";
+import type { Program } from "@/types/api";
+import {
+  coverageText,
+  lowPoolPrograms,
+  lowPoolText,
+  poolCoverage,
+} from "./pool-coverage";
 
 const tiers = [
   { severity: "LOW", amount: 10_000 },
@@ -37,5 +43,38 @@ describe("poolCoverage", () => {
   it("handles a program without tiers", () => {
     expect(poolCoverage({ poolBalance: 0, rewardTiers: [] })).toBeNull();
     expect(coverageText(null)).toBe("No reward tiers yet");
+  });
+});
+
+describe("lowPoolPrograms", () => {
+  const program = (
+    title: string,
+    status: Program["status"],
+    poolBalance: number,
+    rewardTiers: Program["rewardTiers"] = [...tiers],
+  ) => ({ title, status, poolBalance, rewardTiers }) as Program;
+
+  it("lists live programs that can't pay one top-tier payout, biggest gap first", () => {
+    const low = lowPoolPrograms([
+      program("Covered", "ACTIVE", 600_000),
+      program("Short", "ACTIVE", 340_000),
+      program("Empty", "PAUSED", 0),
+      program("Closed", "CLOSED", 0),
+      program("Draft", "DRAFT", 0),
+      program("No tiers", "ACTIVE", 0, []),
+    ]);
+    expect(low.map((entry) => entry.program.title)).toEqual(["Empty", "Short"]);
+    expect(low[1]?.shortfall).toBe(160_000);
+  });
+
+  it("says what to add (design-plan §12, owner low pool)", () => {
+    const [entry] = lowPoolPrograms([
+      program("Acme Web Application", "ACTIVE", 340_000, [
+        { severity: "CRITICAL", amount: 660_000 },
+      ]),
+    ]);
+    expect(entry && lowPoolText(entry)).toBe(
+      "Acme Web Application can't cover a Critical payout. Add at least $3,200.00 to keep it covered.",
+    );
   });
 });

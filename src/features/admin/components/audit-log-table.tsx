@@ -22,6 +22,7 @@ import { PaginationBar } from "@/components/shared/pagination-bar";
 import { QueryError } from "@/components/shared/query-error";
 import { Button } from "@/components/ui/button";
 import { useListParams } from "@/hooks/use-list-params";
+import { ACCOUNT_ROLE_LABEL } from "@/lib/constants/domain";
 import { hasActiveFilters } from "@/lib/list-params";
 import { clientQuery } from "@/lib/query/descriptor";
 import { cn } from "@/lib/utils";
@@ -40,7 +41,6 @@ import {
   auditLogParams,
 } from "../params";
 import { auditLogQuery, userOptionsQuery } from "../queries";
-import { USER_ROLE_LABEL } from "../users";
 
 const ACTION_OPTIONS: FilterOption<AuditAction>[] = AUDIT_ACTIONS.map(
   (action) => ({ value: action, label: AUDIT_ACTION_LABEL[action] }),
@@ -164,7 +164,7 @@ export function AuditLogTable() {
           <div className="flex flex-col gap-0.5">
             <span>{log.actor.name}</span>
             <span className="text-xs text-muted-foreground">
-              {USER_ROLE_LABEL[log.actor.role]}
+              {ACCOUNT_ROLE_LABEL[log.actor.role]}
             </span>
           </div>
         ),

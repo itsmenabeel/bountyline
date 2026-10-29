@@ -15,10 +15,13 @@ export function ProgramCard({
   program,
   href,
   action,
+  headingLevel: Heading = "h2",
 }: {
   program: Program;
   href: string;
   action?: ReactNode;
+  /** h3 when the cards sit under a section heading, as on an overview page. */
+  headingLevel?: "h2" | "h3";
 }) {
   const coverage = poolCoverage(program);
   const topReward = coverage?.tier.amount;
@@ -28,7 +31,7 @@ export function ProgramCard({
   return (
     <article className="relative flex w-full flex-col gap-4 rounded-xl border bg-card p-5 transition-colors duration-(--motion-fast) hover:border-input has-[a[data-card-link]:focus-visible]:ring-3 has-[a[data-card-link]:focus-visible]:ring-ring/70">
       <div className="flex min-w-0 flex-col gap-1">
-        <h2 className="text-lg leading-snug font-semibold text-balance">
+        <Heading className="text-lg leading-snug font-semibold text-balance">
           <Link
             href={href}
             data-card-link
@@ -36,7 +39,7 @@ export function ProgramCard({
           >
             {program.title}
           </Link>
-        </h2>
+        </Heading>
         <p className="text-sm text-muted-foreground">
           Run by {program.owner.name}
         </p>

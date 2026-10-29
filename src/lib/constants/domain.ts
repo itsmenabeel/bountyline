@@ -57,6 +57,16 @@ export const ROLE_LABEL: Record<Role, string> = {
 };
 
 /**
+ * Account types where a person's account itself is the subject (users page, profile, audit
+ * log). Comments call admins "Triage team" (ROLE_LABEL); here "Admin" reads plainer.
+ */
+export const ACCOUNT_ROLE_LABEL: Record<Role, string> = {
+  RESEARCHER: "Researcher",
+  PROGRAM_OWNER: "Program owner",
+  ADMIN: "Admin",
+};
+
+/**
  * Legal next statuses (backend REPORT_TRANSITIONS). REWARDED comes only from the payout
  * endpoint, so the triage panel offers `TRIAGE_TARGETS` instead.
  */
