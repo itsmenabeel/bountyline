@@ -1,6 +1,61 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { LogoMark } from "@/components/brand/logo";
-import { FOOTER_NAV, SITE_NAME } from "@/lib/site";
+import {
+  AUTH_LINKS,
+  FOOTER_ACCOUNT_LINKS,
+  FOOTER_NAV,
+  type NavItem,
+  SITE_NAME,
+} from "@/lib/site";
+import { dashboardHref } from "./account-links";
+
+function FooterGroup({
+  heading,
+  items,
+}: {
+  heading: string;
+  items: readonly NavItem[];
+}) {
+  return (
+    <nav aria-labelledby={`footer-${heading}`}>
+      <h2
+        id={`footer-${heading}`}
+        className="font-mono text-xs font-medium tracking-wide text-muted-foreground uppercase"
+      >
+        {heading}
+      </h2>
+      <ul className="mt-3 flex flex-col gap-1">
+        {items.map((item) => (
+          <li key={item.href}>
+            <Link
+              href={item.href}
+              prefetch={item.href === "/login" ? false : undefined}
+              className="inline-flex min-h-8 items-center rounded-sm text-sm outline-none hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/70 pointer-coarse:min-h-11"
+            >
+              {item.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+/** Sign-in links for visitors, the dashboard for a signed-in one (cookies only, like the header). */
+async function AccountGroup() {
+  const href = await dashboardHref();
+  return (
+    <FooterGroup
+      heading="Account"
+      items={
+        href
+          ? [{ label: AUTH_LINKS.dashboard.label, href: href as `/${string}` }]
+          : FOOTER_ACCOUNT_LINKS
+      }
+    />
+  );
+}
 
 export function SiteFooter() {
   return (
@@ -17,27 +72,19 @@ export function SiteFooter() {
           </p>
         </div>
         {FOOTER_NAV.map((group) => (
-          <nav key={group.heading} aria-labelledby={`footer-${group.heading}`}>
-            <h2
-              id={`footer-${group.heading}`}
-              className="font-mono text-xs font-medium tracking-wide text-muted-foreground uppercase"
-            >
-              {group.heading}
-            </h2>
-            <ul className="mt-3 flex flex-col gap-1">
-              {group.items.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="inline-flex min-h-8 items-center rounded-sm text-sm outline-none hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/70 pointer-coarse:min-h-11"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <FooterGroup
+            key={group.heading}
+            heading={group.heading}
+            items={group.items}
+          />
         ))}
+        <Suspense
+          fallback={
+            <FooterGroup heading="Account" items={FOOTER_ACCOUNT_LINKS} />
+          }
+        >
+          <AccountGroup />
+        </Suspense>
       </div>
       <div className="border-t">
         <p className="mx-auto w-full max-w-page px-4 py-5 text-xs text-muted-foreground md:px-6 lg:px-8">

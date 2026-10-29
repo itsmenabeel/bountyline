@@ -13,7 +13,7 @@ type Variant = "bar" | "sheet";
  * read, so public pages make no backend call. With an expired access token but a refresh
  * token, /login refreshes the session and forwards to the dashboard (proxy.ts).
  */
-async function dashboardHref(): Promise<string | null> {
+export async function dashboardHref(): Promise<string | null> {
   const { role, canResume } = await getVisitor();
   if (role) return homeFor(role);
   return canResume ? AUTH_LINKS.dashboard.href : null;

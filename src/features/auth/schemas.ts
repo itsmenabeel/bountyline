@@ -32,7 +32,8 @@ export const PASSWORD_RULES = [
   },
 ] as const;
 
-const email = z
+/** An email address, trimmed and lowercased, as the backend stores it. */
+export const emailSchema = z
   .string()
   .trim()
   .toLowerCase()
@@ -44,7 +45,7 @@ const email = z
   );
 
 export const loginSchema = z.object({
-  email,
+  email: emailSchema,
   password: z.string().min(1, "Enter your password."),
 });
 
@@ -58,7 +59,7 @@ export const nameSchema = z
 
 export const registerSchema = z.object({
   name: nameSchema,
-  email,
+  email: emailSchema,
   password: z
     .string()
     .min(1, { error: "Create a password.", abort: true })

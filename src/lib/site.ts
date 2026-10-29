@@ -39,13 +39,12 @@ export const FOOTER_NAV: { heading: string; items: NavItem[] }[] = [
       { label: "Contact", href: "/contact" },
     ],
   },
-  {
-    heading: "Account",
-    items: [
-      { label: "Sign in", href: "/login" },
-      { label: "Create an account", href: "/register" },
-    ],
-  },
+];
+
+/** The footer's Account links for a signed-out visitor; signed-in ones get their dashboard. */
+export const FOOTER_ACCOUNT_LINKS: NavItem[] = [
+  { label: "Sign in", href: "/login" },
+  { label: "Create an account", href: "/register" },
 ];
 
 /** True when `pathname` is the link's page or a page below it. */

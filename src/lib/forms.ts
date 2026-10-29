@@ -31,12 +31,15 @@ export function flattenFieldErrors<T extends FieldValues>(
   const flat: FlatFieldError[] = [];
   const walk = (node: unknown, path: string) => {
     if (typeof node !== "object" || node === null) return;
-    if ("message" in node && typeof node.message === "string") {
-      flat.push({ path, message: node.message });
-    }
+    const isError = "message" in node && typeof node.message === "string";
+    if (isError) flat.push({ path, message: node.message as string });
     for (const [key, child] of Object.entries(node)) {
-      // `ref` points at the DOM element; `message` and `type` are the error itself.
-      if (key === "ref" || key === "message" || key === "type") continue;
+      // `ref` points at the DOM element. On an error node, `message`, `type`, and `types` are
+      // the error itself; elsewhere they're field names (the contact form has a `message`).
+      if (key === "ref") continue;
+      if (isError && (key === "message" || key === "type" || key === "types")) {
+        continue;
+      }
       walk(child, path ? `${path}.${key}` : key);
     }
   };
