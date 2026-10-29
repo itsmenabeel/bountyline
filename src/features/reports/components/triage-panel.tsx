@@ -42,6 +42,7 @@ import { describedBy } from "@/lib/forms";
 import { formatMoney } from "@/lib/money";
 import type { Cents, Program, Report, Severity } from "@/types/api";
 import { reportEndpoints } from "../endpoints";
+import { payoutPlan } from "../payout";
 import { reportKeys } from "../queries";
 import {
   TRIAGE_NOTE,
@@ -50,6 +51,7 @@ import {
   triageSchema,
 } from "../schemas";
 import { DuplicatePicker } from "./duplicate-picker";
+import { PayoutAction } from "./payout-action";
 
 type PanelProgram = Pick<Program, "poolBalance" | "rewardTiers">;
 
@@ -98,25 +100,27 @@ function failureMessage(error: ApiError) {
 
 /** The pool line under the severity: what accepting commits the program to pay. */
 function PayoutPreview({
+  id,
   amount,
   poolBalance,
 }: {
+  id?: string;
   amount: Cents;
   poolBalance: Cents;
 }) {
-  const short = amount - poolBalance;
+  const { covered, poolAfter, shortfall } = payoutPlan({ amount, poolBalance });
   return (
-    <p className="text-sm text-muted-foreground">
+    <p id={id} className="text-sm text-muted-foreground">
       Pays <Money cents={amount} tone="money" />. The pool holds{" "}
       <Money cents={poolBalance} />
-      {short > 0 ? (
+      {covered ? (
         <>
-          , so the owner needs to add <Money cents={short} /> before it can be
-          paid.
+          , leaving <Money cents={poolAfter} /> after the payout.
         </>
       ) : (
         <>
-          , leaving <Money cents={poolBalance - amount} /> after the payout.
+          , so the owner needs to add <Money cents={shortfall} /> before it can
+          be paid.
         </>
       )}
     </p>
@@ -213,21 +217,35 @@ export function TriagePanel({
     return (
       <section
         aria-labelledby="triage-heading"
-        className="flex flex-col gap-2 border-t pt-4"
+        className="flex flex-col gap-3 border-t pt-4"
       >
         <h2 id="triage-heading" className="text-base font-semibold">
           Triage
         </h2>
         <p className="text-sm text-muted-foreground">
           Accepted
-          {report.severity ? ` at ${SEVERITY_LABEL[report.severity]}` : ""}. It
-          waits for the payout.
+          {report.severity ? ` at ${SEVERITY_LABEL[report.severity]}` : ""}. The
+          researcher gets paid once you send the payout.
         </p>
-        {tier && (
-          <PayoutPreview
-            amount={tier.amount}
-            poolBalance={program.poolBalance}
-          />
+        {tier ? (
+          <>
+            <PayoutPreview
+              id="payout-preview"
+              amount={tier.amount}
+              poolBalance={program.poolBalance}
+            />
+            <PayoutAction
+              report={report}
+              amount={tier.amount}
+              poolBalance={program.poolBalance}
+              describedById="payout-preview"
+            />
+          </>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            The program has no reward tier at this severity, so the report
+            can&apos;t be paid until the owner adds one.
+          </p>
         )}
       </section>
     );

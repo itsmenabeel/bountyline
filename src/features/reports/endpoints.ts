@@ -3,6 +3,7 @@ import type {
   Report,
   ReportComment,
   ReportStatus,
+  RewardResult,
   Severity,
 } from "@/types/api";
 import type { ReportSort } from "./params";
@@ -38,6 +39,12 @@ export const reportEndpoints = {
   /** Admins only. The backend checks the move against REPORT_TRANSITIONS again. */
   triage: (id: string, body: TriageRequest) =>
     endpoint<Report>({ method: "PATCH", path: `/reports/${id}/status`, body }),
+  /**
+   * Admins only, on an ACCEPTED report: pays its severity's tier from the program's pool in
+   * one transaction. 409 with INSUFFICIENT_POOL or ALREADY_REWARDED when it can't.
+   */
+  reward: (id: string) =>
+    endpoint<RewardResult>({ method: "POST", path: `/reports/${id}/reward` }),
   remove: (id: string) =>
     endpoint<void>({ method: "DELETE", path: `/reports/${id}` }),
   /** Oldest first. */
