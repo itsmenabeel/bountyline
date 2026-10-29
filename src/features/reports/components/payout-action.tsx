@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { Button } from "@/components/ui/button";
+import { payoutKeys } from "@/features/payouts/queries";
 import { programKeys } from "@/features/programs/queries";
 import { clientRequest } from "@/lib/api/client";
 import { toApiError } from "@/lib/api/errors";
@@ -55,6 +56,7 @@ export function PayoutAction({
         queryKey: programKeys.detail(report.programId),
       });
       void queryClient.invalidateQueries({ queryKey: programKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: payoutKeys.all });
     },
   });
 

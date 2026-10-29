@@ -1,10 +1,11 @@
 import { listEndpoint } from "@/lib/api/request";
 import type { Payout } from "@/types/api";
+import type { PayoutSort } from "./params";
 
 export interface PayoutListQuery {
   page: number;
   limit: number;
-  sortBy: "createdAt" | "amount";
+  sortBy: PayoutSort;
   order: "asc" | "desc";
   programId?: string;
 }

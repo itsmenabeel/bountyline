@@ -7,7 +7,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from "lucide-react";
-import { type ReactNode, useMemo } from "react";
+import { Fragment, type ReactNode, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -49,6 +49,11 @@ interface DataTableProps<TData, TSort extends string> {
   stale?: boolean;
   /** Shown in place of the rows when there are none. */
   empty: ReactNode;
+  /**
+   * A full-width row under a row, such as expanded details. Return null to render none.
+   * Give it an id so the control that opens it can point at it with `aria-controls`.
+   */
+  renderDetail?: (row: TData) => ReactNode;
 }
 
 const ARIA_SORT = { asc: "ascending", desc: "descending" } as const;
@@ -67,6 +72,7 @@ export function DataTable<TData, TSort extends string>({
   onSortChange,
   stale = false,
   empty,
+  renderDetail,
 }: DataTableProps<TData, TSort>) {
   const columnDefs = useMemo<ColumnDef<TData, unknown>[]>(
     () =>
@@ -188,34 +194,55 @@ export function DataTable<TData, TSort extends string>({
               </TableCell>
             </TableRow>
           ) : (
-            rows.map((row) => (
-              // Solid hover color: the sticky first cell needs an opaque background to cover
-              // the cells scrolling under it, and both have to match.
-              <TableRow key={row.id} className="group/row hover:bg-muted">
-                {row.getVisibleCells().map((cell, index) => {
-                  const column = cell.column.columnDef.meta as
-                    | DataTableColumn<TData, TSort>
-                    | undefined;
-                  return (
-                    <TableCell
-                      key={cell.id}
-                      className={cn(
-                        "px-4 py-3",
-                        column?.align === "end" && "text-right tabular-nums",
-                        index === 0 &&
-                          "sticky left-0 z-10 bg-card group-hover/row:bg-muted",
-                        column?.className,
-                      )}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))
+            rows.map((row) => {
+              const detail = renderDetail?.(row.original);
+              return (
+                <Fragment key={row.id}>
+                  {/* Solid hover color: the sticky first cell needs an opaque background to cover
+                  the cells scrolling under it, and both have to match. */}
+                  <TableRow
+                    className={cn(
+                      "group/row hover:bg-muted",
+                      detail && "border-b-0",
+                    )}
+                  >
+                    {row.getVisibleCells().map((cell, index) => {
+                      const column = cell.column.columnDef.meta as
+                        | DataTableColumn<TData, TSort>
+                        | undefined;
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          className={cn(
+                            "px-4 py-3",
+                            column?.align === "end" &&
+                              "text-right tabular-nums",
+                            index === 0 &&
+                              "sticky left-0 z-10 bg-card group-hover/row:bg-muted",
+                            column?.className,
+                          )}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                  {detail && (
+                    <TableRow className="hover:bg-transparent">
+                      <TableCell
+                        colSpan={columns.length}
+                        className="px-4 pt-0 pb-4"
+                      >
+                        {detail}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </Fragment>
+              );
+            })
           )}
         </TableBody>
       </Table>

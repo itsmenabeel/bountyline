@@ -38,9 +38,16 @@ export function useListParams<Schema extends ListSchema>(schema: Schema) {
     [schema, searchParams],
   );
 
+  // Patches what the address bar holds now, not this render's params: two changes before a
+  // re-render (the date range's two fields filled back to back) would otherwise have the
+  // second undo the first.
   const setParams = useCallback(
     (patch: Partial<z.output<Schema>>) => {
-      const next = patchListParams(params, patch);
+      const current = parseListParams(
+        schema,
+        new URLSearchParams(window.location.search),
+      );
+      const next = patchListParams(current, patch);
       const query = serializeListParams(next, defaults);
       window.history.replaceState(
         null,
@@ -48,7 +55,7 @@ export function useListParams<Schema extends ListSchema>(schema: Schema) {
         query ? `${pathname}?${query}` : pathname,
       );
     },
-    [params, defaults, pathname],
+    [schema, defaults, pathname],
   );
 
   return { params, defaults, setParams };

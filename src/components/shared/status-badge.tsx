@@ -15,6 +15,7 @@ import {
   Radio,
   ScanSearch,
   TriangleAlert,
+  UserCheck,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -74,6 +75,13 @@ const PAYMENT: Record<PaymentStatus, Treatment> = {
   CANCELLED: { icon: Ban, tone: "muted" },
 };
 
+export type UserStatus = "ACTIVE" | "BANNED";
+
+const USER: Record<UserStatus, Treatment & { label: string }> = {
+  ACTIVE: { icon: UserCheck, tone: "neutral", label: "Active" },
+  BANNED: { icon: Ban, tone: "destructive", label: "Banned" },
+};
+
 type StatusBadgeProps = { className?: string } & (
   | {
       kind: "report";
@@ -82,6 +90,7 @@ type StatusBadgeProps = { className?: string } & (
     }
   | { kind: "program"; status: ProgramStatus }
   | { kind: "payment"; status: PaymentStatus }
+  | { kind: "user"; status: UserStatus }
 );
 
 function treatmentFor(props: StatusBadgeProps): Treatment & { label: string } {
@@ -101,10 +110,12 @@ function treatmentFor(props: StatusBadgeProps): Treatment & { label: string } {
         ...PAYMENT[props.status],
         label: PAYMENT_STATUS_LABEL[props.status],
       };
+    case "user":
+      return USER[props.status];
   }
 }
 
-/** One pill for report, program, and payment statuses. */
+/** One pill for report, program, payment, and account statuses. */
 export function StatusBadge(props: StatusBadgeProps) {
   const { icon: Icon, tone, label } = treatmentFor(props);
   const amount =

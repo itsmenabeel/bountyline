@@ -3,6 +3,7 @@
 import { SearchIcon, XIcon } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   InputGroup,
   InputGroupAddon,
@@ -259,5 +260,62 @@ export function ClearFiltersButton({
       <XIcon aria-hidden="true" />
       Clear filters
     </Button>
+  );
+}
+
+/**
+ * A From and To day as two native date inputs, each written to the URL as YYYY-MM-DD. A
+ * range that ends before it starts stays in the URL as typed, shows an error, and filters
+ * nothing until it's fixed (the list's query drops it).
+ */
+export function DateRangeFilter({
+  idPrefix,
+  from,
+  to,
+  onChange,
+}: {
+  idPrefix: string;
+  from: string | undefined;
+  to: string | undefined;
+  /** Only the field that changed, so two quick edits can't overwrite each other. */
+  onChange: (patch: { from?: string } | { to?: string }) => void;
+}) {
+  const invalid = Boolean(from && to && from > to);
+  const errorId = `${idPrefix}-range-error`;
+  return (
+    <fieldset className="flex min-w-0 flex-col gap-1.5">
+      <legend className="sr-only">Date range</legend>
+      <div className="flex gap-3">
+        {(["from", "to"] as const).map((edge) => {
+          const id = `${idPrefix}-${edge}`;
+          const value = edge === "from" ? from : to;
+          return (
+            <div
+              key={edge}
+              className="flex min-w-0 flex-1 flex-col gap-1.5 sm:w-40"
+            >
+              <Label htmlFor={id}>{edge === "from" ? "From" : "To"}</Label>
+              <Input
+                id={id}
+                type="date"
+                value={value ?? ""}
+                min={edge === "to" ? from : undefined}
+                max={edge === "from" ? to : undefined}
+                aria-invalid={invalid || undefined}
+                aria-describedby={invalid ? errorId : undefined}
+                onChange={(event) =>
+                  onChange({ [edge]: event.target.value || undefined })
+                }
+              />
+            </div>
+          );
+        })}
+      </div>
+      {invalid && (
+        <p id={errorId} className="text-sm text-destructive">
+          The end date comes before the start date.
+        </p>
+      )}
+    </fieldset>
   );
 }
