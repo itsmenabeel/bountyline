@@ -6,6 +6,7 @@ import { PendingLabel } from "@/components/shared/pending-label";
 import { QueryError } from "@/components/shared/query-error";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FundDialog } from "@/features/payments/components/fund-dialog";
+import { ProgramPayments } from "@/features/payments/components/payment-table";
 import { clientQuery } from "@/lib/query/descriptor";
 import type { OwnerProgramTab } from "../owner-tabs";
 import { programDetailQuery } from "../queries";
@@ -21,9 +22,10 @@ function writeTab(tab: OwnerProgramTab) {
 }
 
 /**
- * The owner's program page: header, then Overview and Settings tabs synced to `?tab=`
- * (design-plan §7.4). It reads the program through TanStack Query, seeded by the server
- * page, so a status change shows in the header the moment the owner makes it.
+ * The owner's program page: header, then Overview, Payments, and Settings tabs synced to
+ * `?tab=` (design-plan §7.4). It reads the program through TanStack Query, seeded by the
+ * server page, so a status change shows in the header the moment the owner makes it.
+ * Payments keeps its filter and page in state, since the URL already holds the tab.
  */
 export function OwnerProgramView({
   id,
@@ -82,6 +84,7 @@ export function OwnerProgramView({
       >
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
@@ -90,6 +93,18 @@ export function OwnerProgramView({
             action={
               program.status !== "CLOSED" && <FundDialog program={program} />
             }
+          />
+        </TabsContent>
+        <TabsContent value="payments">
+          <ProgramPayments
+            programId={program.id}
+            programBasePath="/owner/programs"
+            idPrefix="program-payments"
+            empty={{
+              title: "No payments for this program yet.",
+              description:
+                "Each checkout you start with Fund pool on the Overview tab shows here.",
+            }}
           />
         </TabsContent>
         <TabsContent

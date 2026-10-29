@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { z } from "zod";
 import {
   type ListParams,
@@ -51,5 +51,27 @@ export function useListParams<Schema extends ListSchema>(schema: Schema) {
     [params, defaults, pathname],
   );
 
+  return { params, defaults, setParams };
+}
+
+export type ListParamsState<Schema extends ListSchema> = ReturnType<
+  typeof useListParams<Schema>
+>;
+
+/**
+ * The same state as `useListParams`, held in component state instead of the URL. For a
+ * list inside a tab whose page already owns the query string (`?tab=`), where writing the
+ * list's params would drop the tab.
+ */
+export function useLocalListParams<Schema extends ListSchema>(
+  schema: Schema,
+): ListParamsState<Schema> {
+  const defaults = useMemo(() => listDefaults(schema), [schema]);
+  const [params, setState] = useState(defaults);
+  const setParams = useCallback(
+    (patch: Partial<z.output<Schema>>) =>
+      setState((current) => patchListParams(current, patch)),
+    [],
+  );
   return { params, defaults, setParams };
 }

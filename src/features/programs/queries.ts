@@ -50,6 +50,18 @@ export function programTableQuery(
   );
 }
 
+/** The owner's own programs in every status, by title, for filters on owner pages. */
+export function ownerProgramOptionsQuery() {
+  return programTableQuery("mine", {
+    page: 1,
+    limit: 50,
+    sortBy: "title",
+    order: "asc",
+    search: undefined,
+    status: undefined,
+  });
+}
+
 /**
  * The programs a signed-in viewer can open, by title, for pickers and filters: ACTIVE ones
  * for researchers, all of them for admins. The backend caps a page at 50, which covers every
