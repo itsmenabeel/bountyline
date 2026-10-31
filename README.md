@@ -179,13 +179,3 @@ paths, dialog focus, and 44px touch targets were checked in a browser. Severity 
 carry text as well as color, and every chart has a table view.
 
 Public pages use CSS animation only. Visitors who ask for reduced motion see everything in place.
-
-## Known limits
-
-- **Saved reward tiers can't be removed.** The API updates tiers but doesn't delete them, and a
-  deleted tier would strand accepted reports at that severity. Owners can change a saved tier's
-  amount.
-- **The contact form opens your email app.** The backend has no contact endpoint, so the form
-  prefills a message for you to send.
-- **No file uploads.** Reports are Markdown text, and avatars show initials.
-- **Charts show current totals, not trends.** The stats endpoint has no time series.

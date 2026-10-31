@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Logo } from "@/components/brand/logo";
 import { AccountLinks, SignedOutLinks } from "./account-links";
+import { AppearanceMenu } from "./appearance-menu";
 import { NavLinkList, PublicMobileNav, PublicNavLinks } from "./public-nav";
 
 export function PublicHeader() {
@@ -16,20 +17,23 @@ export function PublicHeader() {
             <PublicNavLinks />
           </Suspense>
         </nav>
-        {/* Reading the session cookies is request-time, so it streams in; the fallback is
-            the signed-out pair, which keeps the header in the static shell. */}
-        <div className="hidden items-center gap-2 md:flex">
-          <Suspense fallback={<SignedOutLinks variant="bar" />}>
-            <AccountLinks variant="bar" />
-          </Suspense>
-        </div>
-        <PublicMobileNav
-          account={
-            <Suspense fallback={<SignedOutLinks variant="sheet" />}>
-              <AccountLinks variant="sheet" />
+        <div className="flex items-center gap-2">
+          <AppearanceMenu />
+          {/* Reading the session cookies is request-time, so it streams in; the fallback is
+              the signed-out pair, which keeps the header in the static shell. */}
+          <div className="hidden items-center gap-2 md:flex">
+            <Suspense fallback={<SignedOutLinks variant="bar" />}>
+              <AccountLinks variant="bar" />
             </Suspense>
-          }
-        />
+          </div>
+          <PublicMobileNav
+            account={
+              <Suspense fallback={<SignedOutLinks variant="sheet" />}>
+                <AccountLinks variant="sheet" />
+              </Suspense>
+            }
+          />
+        </div>
       </div>
     </header>
   );

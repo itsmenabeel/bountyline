@@ -57,7 +57,7 @@ export default function Home() {
           <HeroBackdrop />
           <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 px-4 py-24 text-center md:px-6 md:py-36">
             <h1 className="rise-in text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
-              Offer bounties. Find and report bugs. Get paid.{" "}
+              Offer bounties. Find and report vulnerabilities. Get paid.{" "}
               <span className="text-primary sm:block">All in one place.</span>
             </h1>
             <p className="rise-in max-w-prose text-lg text-pretty text-muted-foreground [--enter-i:1]">
