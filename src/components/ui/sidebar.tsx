@@ -182,6 +182,13 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
+          // The drawer opens from SidebarTrigger, not a Radix trigger, so Radix can't return focus.
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            document
+              .querySelector<HTMLElement>("[data-sidebar=trigger]")
+              ?.focus();
+          }}
           className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
           style={
             {
@@ -201,7 +208,7 @@ function Sidebar({
   }
 
   return (
-    <div
+    <aside
       className="group peer hidden text-sidebar-foreground lg:block"
       data-state={state}
       data-collapsible={state === "collapsed" ? collapsible : ""}
@@ -242,7 +249,7 @@ function Sidebar({
           {children}
         </div>
       </div>
-    </div>
+    </aside>
   );
 }
 
@@ -511,7 +518,8 @@ function SidebarMenuButton({
     />
   );
 
-  if (!tooltip) {
+  // On phones the tooltip stays hidden but still takes Escape, so the drawer needed it twice.
+  if (!tooltip || isMobile) {
     return button;
   }
 
@@ -527,7 +535,7 @@ function SidebarMenuButton({
       <TooltipContent
         side="right"
         align="center"
-        hidden={state !== "collapsed" || isMobile}
+        hidden={state !== "collapsed"}
         {...tooltip}
       />
     </Tooltip>

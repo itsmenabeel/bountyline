@@ -32,7 +32,7 @@ export function StatCard({
         {href ? (
           <Link
             href={href}
-            className="outline-none after:absolute after:inset-0 after:rounded-xl"
+            className="inline-block min-w-6 outline-none after:absolute after:inset-0 after:rounded-xl"
           >
             {value}
           </Link>

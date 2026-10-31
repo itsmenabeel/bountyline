@@ -178,7 +178,7 @@ export default async function OwnerOverviewPage() {
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <Link
                     href={`/owner/programs/${payment.programId}`}
-                    className="font-medium text-pretty underline-offset-4 hover:underline"
+                    className="touch-link font-medium text-pretty underline-offset-4 hover:underline"
                   >
                     {payment.program.title}
                   </Link>

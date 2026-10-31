@@ -57,14 +57,14 @@ export function UserMenu() {
         <Button
           variant="ghost"
           className="h-9 gap-2 px-1.5 pointer-coarse:h-11"
-          aria-label={`Account menu for ${user.name}`}
         >
-          <Avatar className="size-7">
+          <span className="sr-only">Account menu for </span>
+          <Avatar aria-hidden="true" className="size-7">
             <AvatarFallback className="text-xs font-medium">
               {initials(user.name)}
             </AvatarFallback>
           </Avatar>
-          <span className="hidden max-w-40 truncate sm:inline">
+          <span className="sr-only max-w-40 truncate sm:not-sr-only">
             {user.name}
           </span>
           <ChevronDownIcon

@@ -26,7 +26,7 @@ export function ReportList({
           <div className="flex min-w-0 flex-col gap-0.5">
             <Link
               href={`${basePath}/${report.id}`}
-              className="font-medium text-pretty underline-offset-4 hover:underline"
+              className="touch-link font-medium text-pretty underline-offset-4 hover:underline"
             >
               {report.title}
             </Link>

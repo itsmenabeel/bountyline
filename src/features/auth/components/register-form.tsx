@@ -228,7 +228,11 @@ export function RegisterForm() {
                           data-invalid={fieldState.invalid}
                         >
                           <FieldContent>
-                            <FieldTitle>{option.title}</FieldTitle>
+                            <FieldTitle
+                              id={`register-role-${option.value}-title`}
+                            >
+                              {option.title}
+                            </FieldTitle>
                             <FieldDescription>
                               {option.description}
                             </FieldDescription>
@@ -237,6 +241,7 @@ export function RegisterForm() {
                             // The first option takes focus when the role is missing on submit.
                             ref={index === 0 ? field.ref : undefined}
                             id={`register-role-${option.value}`}
+                            aria-labelledby={`register-role-${option.value}-title`}
                             value={option.value}
                             aria-invalid={fieldState.invalid}
                             onBlur={field.onBlur}

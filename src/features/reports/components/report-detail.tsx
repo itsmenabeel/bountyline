@@ -53,7 +53,7 @@ export function ReportDetail({
   const program = programHref ? (
     <Link
       href={programHref}
-      className="font-medium underline-offset-4 hover:underline"
+      className="touch-link font-medium underline-offset-4 hover:underline"
     >
       {report.program.title}
     </Link>

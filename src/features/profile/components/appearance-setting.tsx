@@ -69,11 +69,14 @@ export function AppearanceSetting() {
                 className="size-4 shrink-0 text-muted-foreground"
               />
               <FieldContent>
-                <FieldTitle>{option.title}</FieldTitle>
+                <FieldTitle id={`appearance-${option.value}-title`}>
+                  {option.title}
+                </FieldTitle>
                 <FieldDescription>{option.description}</FieldDescription>
               </FieldContent>
               <RadioGroupItem
                 id={`appearance-${option.value}`}
+                aria-labelledby={`appearance-${option.value}-title`}
                 value={option.value}
               />
             </Field>

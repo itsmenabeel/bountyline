@@ -240,6 +240,29 @@
   }
 }
 
+/* Short text links get a taller hit area on touch screens without changing the layout: table
+   rows, breadcrumbs, and anything marked .touch-link. Links in running text stay as they are. */
+@layer base {
+  @media (pointer: coarse) {
+    td a,
+    [data-slot="breadcrumb-link"],
+    .touch-link {
+      /* A wrapped inline link has no single box to stretch. */
+      display: inline-block;
+      position: relative;
+      z-index: 1;
+    }
+    td a::after,
+    [data-slot="breadcrumb-link"]::after,
+    .touch-link::after {
+      content: "";
+      position: absolute;
+      inset-block: -13px;
+      inset-inline: 0;
+    }
+  }
+}
+
 /* Page transitions on public and sign-in pages (features/marketing PageTransition). The old
    page leaves faster than the new one arrives, and the header stays still as the anchor. */
 ::view-transition {

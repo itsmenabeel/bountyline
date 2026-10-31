@@ -316,7 +316,7 @@ export function TriagePanel({
                           data-disabled={noTiers || undefined}
                         >
                           <FieldContent>
-                            <FieldTitle>
+                            <FieldTitle id={`triage-status-${option}-title`}>
                               {option === "TRIAGING"
                                 ? "In triage"
                                 : REPORT_STATUS_LABEL[option]}
@@ -330,6 +330,7 @@ export function TriagePanel({
                           <RadioGroupItem
                             ref={index === 0 ? field.ref : undefined}
                             id={`triage-status-${option}`}
+                            aria-labelledby={`triage-status-${option}-title`}
                             value={option}
                             disabled={noTiers}
                             aria-invalid={fieldState.invalid}

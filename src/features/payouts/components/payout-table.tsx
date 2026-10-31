@@ -28,7 +28,8 @@ import type { Payout } from "@/types/api";
 import { type PayoutSort, payoutListParams } from "../params";
 import { payoutListQuery } from "../queries";
 
-const linkClass = "font-medium text-pretty underline-offset-4 hover:underline";
+const linkClass =
+  "touch-link font-medium text-pretty underline-offset-4 hover:underline";
 
 export type PayoutTableVariant = "admin" | "researcher";
 
@@ -89,7 +90,7 @@ export function PayoutTable({ variant }: { variant: PayoutTableVariant }) {
           isAdmin ? (
             <Link
               href={`/admin/programs/${payout.program.id}`}
-              className="text-pretty underline-offset-4 hover:underline"
+              className="touch-link text-pretty underline-offset-4 hover:underline"
             >
               {payout.program.title}
             </Link>

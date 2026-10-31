@@ -298,6 +298,7 @@ export function DateRangeFilter({
               <Input
                 id={id}
                 type="date"
+                className="focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/70"
                 value={value ?? ""}
                 min={edge === "to" ? from : undefined}
                 max={edge === "from" ? to : undefined}

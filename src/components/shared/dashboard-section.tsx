@@ -31,7 +31,7 @@ export function DashboardSection({
         {viewAll && (
           <Link
             href={viewAll.href}
-            className="shrink-0 text-sm font-medium text-primary underline-offset-4 hover:underline"
+            className="touch-link shrink-0 text-sm font-medium text-primary underline-offset-4 hover:underline"
           >
             {viewAll.label}
           </Link>

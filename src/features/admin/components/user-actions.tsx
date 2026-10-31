@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";
-import { useRef, useState } from "react";
+import { type RefObject, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { type Failure, FailureAlert } from "@/components/shared/failure-alert";
@@ -126,8 +126,10 @@ function BanDialog({
   open,
   onOpenChange,
   onBan,
+  returnFocusTo,
 }: {
   user: User;
+  returnFocusTo: RefObject<HTMLButtonElement | null>;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onBan: (reason: string) => void;
@@ -150,7 +152,13 @@ function BanDialog({
         onOpenChange(next);
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          returnFocusTo.current?.focus();
+        }}
+      >
         <form
           noValidate
           className="flex flex-col gap-5"
@@ -214,8 +222,10 @@ function RoleDialog({
   user,
   open,
   onOpenChange,
+  returnFocusTo,
 }: {
   user: User;
+  returnFocusTo: RefObject<HTMLButtonElement | null>;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -260,7 +270,13 @@ function RoleDialog({
         onOpenChange(next);
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          returnFocusTo.current?.focus();
+        }}
+      >
         <form
           noValidate
           className="flex flex-col gap-5"
@@ -340,6 +356,8 @@ function RoleDialog({
 export function UserActions({ user, isSelf }: { user: User; isSelf: boolean }) {
   const [dialog, setDialog] = useState<"role" | "ban" | null>(null);
   const status = useChangeStatus();
+  // The menu has closed by the time a dialog does, so the dialog sends focus back itself.
+  const menuButton = useRef<HTMLButtonElement>(null);
 
   if (isSelf) {
     return <span className="text-xs text-muted-foreground">Your account</span>;
@@ -351,6 +369,7 @@ export function UserActions({ user, isSelf }: { user: User; isSelf: boolean }) {
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
+            ref={menuButton}
             variant="ghost"
             size="icon"
             aria-label={`Actions for ${user.name}`}
@@ -380,11 +399,13 @@ export function UserActions({ user, isSelf }: { user: User; isSelf: boolean }) {
       </DropdownMenu>
       <RoleDialog
         user={user}
+        returnFocusTo={menuButton}
         open={dialog === "role"}
         onOpenChange={(open) => setDialog(open ? "role" : null)}
       />
       <BanDialog
         user={user}
+        returnFocusTo={menuButton}
         open={dialog === "ban"}
         onOpenChange={(open) => setDialog(open ? "ban" : null)}
         onBan={(reason) => status.mutate({ user, isActive: false, reason })}

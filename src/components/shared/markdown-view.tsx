@@ -27,22 +27,24 @@ function ExternalLink({
   );
 }
 
-// The page owns h1 and the section h2s, so Markdown headings start at h3.
+// The page owns h1 and the section h2s. Authors can start at any level ("## Summary", or
+// "#### Steps"), and mapping levels one to one skipped from h2 to h4 for screen readers. So
+// every Markdown heading is an h3, and its size keeps the author's hierarchy.
 const heading =
-  (Tag: "h3" | "h4" | "h5" | "h6", className: string) =>
+  (className: string) =>
   ({ children }: ComponentProps<"h1">) => (
-    <Tag className={cn("font-semibold tracking-tight", className)}>
+    <h3 className={cn("font-semibold tracking-tight", className)}>
       {children}
-    </Tag>
+    </h3>
   );
 
 const components: Components = {
-  h1: heading("h3", "text-xl"),
-  h2: heading("h4", "text-lg"),
-  h3: heading("h5", "text-base"),
-  h4: heading("h6", "text-base"),
-  h5: heading("h6", "text-sm"),
-  h6: heading("h6", "text-sm"),
+  h1: heading("text-xl"),
+  h2: heading("text-lg"),
+  h3: heading("text-base"),
+  h4: heading("text-base"),
+  h5: heading("text-sm"),
+  h6: heading("text-sm"),
   a: ({ href, children }) => (
     <ExternalLink href={href}>{children}</ExternalLink>
   ),

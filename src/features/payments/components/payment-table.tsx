@@ -157,7 +157,7 @@ export function PaymentTable({
       cell: (payment) => (
         <Link
           href={`${programBasePath}/${payment.programId}`}
-          className="font-medium text-pretty underline-offset-4 hover:underline"
+          className="touch-link font-medium text-pretty underline-offset-4 hover:underline"
         >
           {payment.program.title}
         </Link>
