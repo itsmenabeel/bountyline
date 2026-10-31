@@ -58,7 +58,7 @@ export async function NewestPrograms() {
     );
   }
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="reveal-group grid gap-4 md:grid-cols-3">
       {programs.items.map((program) => (
         <ProgramCard
           key={program.id}

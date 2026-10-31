@@ -1,0 +1,230 @@
+/* Public pages only: role tones and entrance, scroll, and hero motion. All of it is CSS, so
+   content never waits on JavaScript. Visitors who ask for reduced motion, and browsers without
+   scroll-driven animations, see every element in place from the start. */
+
+.tone-researcher {
+  --tone: var(--role-researcher);
+  --tone-subtle: var(--role-researcher-subtle);
+}
+.tone-organization {
+  --tone: var(--role-organization);
+  --tone-subtle: var(--role-organization-subtle);
+}
+.tone-triage {
+  --tone: var(--role-triage);
+  --tone-subtle: var(--role-triage-subtle);
+}
+.tone-money {
+  --tone: var(--money);
+  --tone-subtle: var(--money-subtle);
+}
+
+/* Hero backdrop: rows of the report track (features/marketing/hero-tracks.ts). A pulse runs along
+   each row and lights the stages as it reaches them, the way a report moves from funded to paid.
+   The mask clears the field behind the text. */
+.hero-tracks {
+  mask-image: radial-gradient(
+    ellipse 46% 44% at 50% 48%,
+    transparent 70%,
+    #000 100%
+  );
+}
+.hero-track {
+  position: absolute;
+  inset-inline: 0;
+  height: 1px;
+  background: var(--border);
+}
+.hero-node {
+  position: absolute;
+  top: 0;
+}
+.hero-node::before,
+.hero-node::after {
+  content: "";
+  position: absolute;
+  top: -4.5px;
+  left: -4.5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.hero-node::before {
+  background: var(--tone);
+  opacity: 0.5;
+}
+/* The ring a stage throws off as the pulse reaches it. */
+.hero-node::after {
+  border: 1.5px solid var(--tone);
+  opacity: 0;
+}
+/* It moves as wide as its row, so a percent of its own width is a percent of the row: the pulse
+   reaches each stage on time at any screen size. Its left edge is the pulse's head. */
+.hero-runner {
+  display: none;
+  position: absolute;
+  inset: 0;
+}
+.hero-runner::before {
+  content: "";
+  position: absolute;
+  top: -0.5px;
+  left: -88px;
+  width: 88px;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--primary));
+}
+.hero-runner::after {
+  content: "";
+  position: absolute;
+  top: -2.5px;
+  left: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+/* The dots on the FAQ graphic's rings. Rules here beat Tailwind's layered utilities, so a change
+   of position needs its own class. */
+.orbit-dot {
+  position: absolute;
+  top: -6px;
+  left: calc(50% - 6px);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--tone);
+}
+.orbit-dot-opposite {
+  top: auto;
+  bottom: -6px;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes line-draw-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes line-draw-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: none;
+  }
+}
+/* The percents match RUN_FROM and RUN_TO in hero-tracks.ts. */
+@keyframes track-run {
+  from {
+    transform: translateX(-4%);
+  }
+  to {
+    transform: translateX(104%);
+  }
+}
+@keyframes node-flash {
+  0% {
+    opacity: 1;
+    transform: scale(1.7);
+  }
+  16%,
+  100% {
+    opacity: 0.5;
+    transform: none;
+  }
+}
+@keyframes node-ring {
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  16%,
+  100% {
+    opacity: 0;
+    transform: scale(3.6);
+  }
+}
+@keyframes orbit-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  /* Gradual appearing on load. --enter-i staggers siblings. */
+  .rise-in {
+    animation: rise-in 620ms var(--ease-enter) both;
+    animation-delay: calc(var(--enter-i, 0) * 110ms);
+  }
+
+  .hero-runner {
+    display: block;
+    animation: track-run var(--run-duration) linear var(--run-delay) infinite;
+  }
+  .hero-node::before {
+    animation: node-flash var(--run-duration) ease-out var(--flash-delay)
+      infinite;
+  }
+  .hero-node::after {
+    animation: node-ring var(--run-duration) ease-out var(--flash-delay)
+      infinite;
+  }
+  .orbit {
+    animation: orbit-turn 26s linear infinite;
+  }
+  .orbit-reverse {
+    animation-duration: 18s;
+    animation-direction: reverse;
+  }
+
+  /* Scroll reveals follow the scroll position, so a jump to an anchor lands with everything in
+     place. A focused element skips the effect: keyboard focus never lands on a faded control. */
+  @supports (animation-timeline: view()) {
+    .reveal:not(:focus-within),
+    .reveal-group > :not(:focus-within) {
+      animation: rise-in linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--reveal-i, 0) * 36px) entry
+        calc(150px + var(--reveal-i, 0) * 36px);
+    }
+    .reveal-group > :nth-child(2) {
+      --reveal-i: 1;
+    }
+    .reveal-group > :nth-child(3) {
+      --reveal-i: 2;
+    }
+    .reveal-group > :nth-child(4) {
+      --reveal-i: 3;
+    }
+
+    .flow-line {
+      transform-origin: top;
+      animation: line-draw-y linear both;
+      animation-timeline: view();
+      animation-range: entry 0 entry 200px;
+    }
+  }
+}
+
+@media screen and (min-width: 48rem) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .flow-line {
+      transform-origin: left;
+      animation-name: line-draw-x;
+    }
+  }
+}

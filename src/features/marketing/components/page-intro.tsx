@@ -11,7 +11,7 @@ export function PageIntro({
   children: ReactNode;
 }) {
   return (
-    <div className="flex max-w-3xl flex-col gap-3">
+    <div className="rise-in flex max-w-3xl flex-col gap-3">
       <p className="font-mono text-xs font-medium tracking-wide text-muted-foreground uppercase">
         {eyebrow}
       </p>

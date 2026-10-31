@@ -5,7 +5,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { FaqSidePanel } from "@/features/marketing/components/faq-side-panel";
 import { PageIntro } from "@/features/marketing/components/page-intro";
+import { PageTransition } from "@/features/marketing/components/page-transition";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata = pageMetadata({
@@ -22,10 +24,16 @@ interface Question {
 }
 
 // Every answer restates a rule the backend enforces (implementation-plan §3.4).
-const GROUPS: { id: string; title: string; questions: Question[] }[] = [
+const GROUPS: {
+  id: string;
+  title: string;
+  tone: string;
+  questions: Question[];
+}[] = [
   {
     id: "researchers",
     title: "For researchers",
+    tone: "tone-researcher",
     questions: [
       {
         id: "which-programs",
@@ -62,6 +70,7 @@ const GROUPS: { id: string; title: string; questions: Question[] }[] = [
   {
     id: "owners",
     title: "For program owners",
+    tone: "tone-organization",
     questions: [
       {
         id: "funding-limits",
@@ -98,6 +107,7 @@ const GROUPS: { id: string; title: string; questions: Question[] }[] = [
   {
     id: "payments",
     title: "Payments",
+    tone: "tone-money",
     questions: [
       {
         id: "test-mode",
@@ -117,49 +127,71 @@ const GROUPS: { id: string; title: string; questions: Question[] }[] = [
 
 export default function FaqPage() {
   return (
-    <div className="mx-auto flex w-full max-w-page flex-col gap-12 px-4 py-12 md:px-6 md:py-16 lg:px-8">
-      <PageIntro eyebrow="FAQ" title="Questions people ask before they start.">
-        <p>
-          Grouped by who's asking. Still stuck?{" "}
-          <Link
-            href="/contact"
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
-            Write to us
-          </Link>
-          .
-        </p>
-      </PageIntro>
-
-      <div className="flex max-w-3xl flex-col gap-10">
-        {GROUPS.map((group) => (
-          <section
-            key={group.id}
-            id={group.id}
-            aria-labelledby={`faq-${group.id}`}
-            className="flex scroll-mt-24 flex-col gap-2"
-          >
-            <h2 id={`faq-${group.id}`} className="text-xl font-semibold">
-              {group.title}
-            </h2>
-            <Accordion
-              type="multiple"
-              className="rounded-xl border bg-card px-5"
+    <PageTransition>
+      <div className="mx-auto flex w-full max-w-page flex-col gap-12 px-4 py-12 md:px-6 md:py-16 lg:px-8">
+        <PageIntro
+          eyebrow="FAQ"
+          title="Questions people ask before they start."
+        >
+          <p>
+            Grouped by who's asking. Still stuck?{" "}
+            <Link
+              href="/contact"
+              className="font-medium text-primary underline-offset-4 hover:underline"
             >
-              {group.questions.map((item) => (
-                <AccordionItem key={item.id} value={item.id}>
-                  <AccordionTrigger className="text-base">
-                    {item.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="max-w-prose text-pretty text-muted-foreground">
-                    {item.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </section>
-        ))}
+              Write to us
+            </Link>
+            .
+          </p>
+        </PageIntro>
+
+        <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_24rem] xl:gap-14">
+          <div className="flex min-w-0 flex-col gap-10">
+            {GROUPS.map((group) => (
+              <section
+                key={group.id}
+                id={group.id}
+                aria-labelledby={`faq-${group.id}`}
+                className={`${group.tone} reveal flex scroll-mt-24 flex-col gap-3`}
+              >
+                <h2
+                  id={`faq-${group.id}`}
+                  className="flex items-center gap-2.5 text-xl font-semibold"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="size-2.5 rounded-full bg-(--tone)"
+                  />
+                  {group.title}
+                </h2>
+                <Accordion
+                  type="multiple"
+                  className="rounded-xl border bg-card px-5"
+                >
+                  {group.questions.map((item) => (
+                    <AccordionItem key={item.id} value={item.id}>
+                      <AccordionTrigger className="text-base">
+                        {item.question}
+                      </AccordionTrigger>
+                      <AccordionContent className="max-w-prose text-pretty text-muted-foreground">
+                        {item.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </section>
+            ))}
+          </div>
+          <FaqSidePanel
+            groups={GROUPS.map((group) => ({
+              id: group.id,
+              title: group.title,
+              tone: group.tone,
+              count: group.questions.length,
+            }))}
+          />
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }

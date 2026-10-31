@@ -118,7 +118,10 @@ export function ProgramDirectory({
               )}
             >
               {query.data.items.map((program) => (
-                <li key={program.id} className="flex">
+                <li
+                  key={program.id}
+                  className={cn("flex", source === "public" && "reveal")}
+                >
                   <ProgramCard
                     program={program}
                     href={`${basePath}/${program.id}`}

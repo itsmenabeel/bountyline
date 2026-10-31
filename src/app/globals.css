@@ -139,6 +139,15 @@
   --radius: 0.625rem;
   --overlay-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
 
+  /* Who acts, on public pages: the primary violet and its two neighbors on the wheel. Money
+     steps keep --money. Solid fills carry --primary-foreground in both modes. */
+  --role-researcher: #5b3fd9;
+  --role-researcher-subtle: #ece8fd;
+  --role-organization: #0a6ea8;
+  --role-organization-subtle: #e1f0f9;
+  --role-triage: #a0259b;
+  --role-triage-subtle: #f9e6f8;
+
   --motion-fast: 120ms;
   --motion-base: 200ms;
   --motion-enter: 260ms;
@@ -199,6 +208,13 @@
   --sidebar-border: #2a2f3a;
   --sidebar-ring: #a996ff;
 
+  --role-researcher: #a996ff;
+  --role-researcher-subtle: #1e1836;
+  --role-organization: #5cc2f2;
+  --role-organization-subtle: #0c2433;
+  --role-triage: #ee82e6;
+  --role-triage-subtle: #2e1230;
+
   --overlay-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
 }
 
@@ -224,6 +240,40 @@
   }
 }
 
+/* Page transitions on public and sign-in pages (features/marketing PageTransition). The old
+   page leaves faster than the new one arrives, and the header stays still as the anchor. */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(.page-exit) {
+  animation: var(--motion-exit) ease-in both page-out;
+}
+::view-transition-new(.page-enter) {
+  animation: 340ms var(--ease-enter) both page-in;
+}
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+@keyframes page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
 /* biome-ignore-start lint/complexity/noImportantStyles: reduced motion has to override the transition and animation utilities on every element. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -233,6 +283,12 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }
 /* biome-ignore-end lint/complexity/noImportantStyles: end of the reduced-motion block. */

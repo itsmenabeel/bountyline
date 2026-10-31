@@ -1,4 +1,5 @@
 import { LoginPanel } from "@/features/auth/components/login-panel";
+import { PageTransition } from "@/features/marketing/components/page-transition";
 import { serverEnv } from "@/lib/env/server";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -18,12 +19,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex w-full max-w-2xl flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
-        <p className="text-muted-foreground">Pick up where you left off.</p>
+    <PageTransition>
+      <div className="flex w-full max-w-2xl flex-col gap-6">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
+          <p className="text-muted-foreground">Pick up where you left off.</p>
+        </div>
+        <LoginPanel demoEmails={demoEmails} />
       </div>
-      <LoginPanel demoEmails={demoEmails} />
-    </div>
+    </PageTransition>
   );
 }

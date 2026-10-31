@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageTransition } from "@/features/marketing/components/page-transition";
 import { ProgramDetail } from "@/features/programs/components/program-detail";
 import { ProgramDetailSkeleton } from "@/features/programs/components/program-skeletons";
 import { programEndpoints } from "@/features/programs/endpoints";
@@ -76,24 +77,28 @@ async function SubmitAction({ programId }: { programId: string }) {
 async function Program({ params }: PageProps<"/programs/[id]">) {
   const program = await loadProgram((await params).id);
   return (
-    <ProgramDetail
-      program={program}
-      directory={{ href: "/programs", label: "Programs" }}
-      action={
-        <Suspense fallback={<Skeleton className="h-11 w-full" />}>
-          <SubmitAction programId={program.id} />
-        </Suspense>
-      }
-    />
+    <div className="rise-in">
+      <ProgramDetail
+        program={program}
+        directory={{ href: "/programs", label: "Programs" }}
+        action={
+          <Suspense fallback={<Skeleton className="h-11 w-full" />}>
+            <SubmitAction programId={program.id} />
+          </Suspense>
+        }
+      />
+    </div>
   );
 }
 
 export default function ProgramPage(props: PageProps<"/programs/[id]">) {
   return (
-    <div className="mx-auto w-full max-w-page px-4 py-10 md:px-6 lg:px-8">
-      <Suspense fallback={<ProgramDetailSkeleton />}>
-        <Program {...props} />
-      </Suspense>
-    </div>
+    <PageTransition>
+      <div className="mx-auto w-full max-w-page px-4 py-10 md:px-6 lg:px-8">
+        <Suspense fallback={<ProgramDetailSkeleton />}>
+          <Program {...props} />
+        </Suspense>
+      </div>
+    </PageTransition>
   );
 }

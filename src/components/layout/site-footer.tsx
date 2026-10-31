@@ -67,8 +67,8 @@ export function SiteFooter() {
             {SITE_NAME}
           </div>
           <p className="max-w-xs text-sm text-muted-foreground">
-            Companies fund a bounty pool, and researchers get paid from it for
-            reports our triage team confirms.
+            Organizations fund a bounty pool, and researchers get paid from it
+            for reports our triage team confirms.
           </p>
         </div>
         {FOOTER_NAV.map((group) => (

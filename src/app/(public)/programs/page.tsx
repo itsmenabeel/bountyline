@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { PageTransition } from "@/features/marketing/components/page-transition";
 import { ProgramDirectory } from "@/features/programs/components/program-directory";
 import { ProgramDirectorySkeleton } from "@/features/programs/components/program-skeletons";
 import { directoryParams } from "@/features/programs/params";
@@ -28,19 +29,21 @@ async function Directory({ searchParams }: PageProps<"/programs">) {
 
 export default function ProgramsPage(props: PageProps<"/programs">) {
   return (
-    <div className="mx-auto flex w-full max-w-page flex-col gap-8 px-4 py-12 md:px-6 lg:px-8">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-          Programs
-        </h1>
-        <p className="max-w-prose text-base text-muted-foreground md:text-lg">
-          Each program sets its scope and what it pays per severity. Read both
-          before you start testing.
-        </p>
+    <PageTransition>
+      <div className="mx-auto flex w-full max-w-page flex-col gap-8 px-4 py-12 md:px-6 lg:px-8">
+        <div className="rise-in flex flex-col gap-2">
+          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+            Programs
+          </h1>
+          <p className="max-w-prose text-base text-muted-foreground md:text-lg">
+            Each program sets its scope and what it pays per severity. Read both
+            before you start testing.
+          </p>
+        </div>
+        <Suspense fallback={<ProgramDirectorySkeleton />}>
+          <Directory {...props} />
+        </Suspense>
       </div>
-      <Suspense fallback={<ProgramDirectorySkeleton />}>
-        <Directory {...props} />
-      </Suspense>
-    </div>
+    </PageTransition>
   );
 }

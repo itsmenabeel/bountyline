@@ -34,7 +34,7 @@ export async function PlatformStats() {
       aria-labelledby="platform-stats-heading"
       className="flex flex-col gap-4"
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+      <div className="reveal flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
         <h2 id="platform-stats-heading" className="text-2xl font-semibold">
           On Bountyline now
         </h2>
@@ -42,7 +42,7 @@ export async function PlatformStats() {
           Updated <LocalTime iso={stats.generatedAt} />
         </p>
       </div>
-      <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <dl className="reveal-group grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
           label="Active programs"
           value={count(stats.activePrograms)}
