@@ -2,13 +2,27 @@ import type { Metadata } from "next";
 import { AppToaster } from "@/components/providers/app-toaster";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { publicEnv } from "@/lib/env/public";
 import { fontVariables } from "@/lib/fonts";
+import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Bountyline", template: "%s · Bountyline" },
-  description: "Bug reports, triaged and paid from one funded pool.",
+  metadataBase: new URL(publicEnv.NEXT_PUBLIC_SITE_URL),
+  title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -27,9 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         <ThemeProvider>
-          <QueryProvider>
-            <TooltipProvider>{children}</TooltipProvider>
-          </QueryProvider>
+          <QueryProvider>{children}</QueryProvider>
           <AppToaster />
         </ThemeProvider>
       </body>

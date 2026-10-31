@@ -1,15 +1,16 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { SeverityBadge } from "@/components/shared/severity-badge";
 import { PageIntro } from "@/features/marketing/components/page-intro";
 import { ReportFlow } from "@/features/marketing/components/report-flow";
+import { pageMetadata } from "@/lib/metadata";
 import type { Severity } from "@/types/api";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "How it works",
   description:
     "The steps each role takes on Bountyline: researchers report, companies fund and follow, and the triage team decides and pays.",
-};
+  path: "/how-it-works",
+});
 
 interface Step {
   title: string;

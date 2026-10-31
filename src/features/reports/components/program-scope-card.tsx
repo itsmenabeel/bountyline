@@ -1,17 +1,11 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { LazyMarkdownView } from "@/components/shared/lazy-markdown-view";
 import { Money } from "@/components/shared/money";
 import { SeverityBadge } from "@/components/shared/severity-badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { Program } from "@/types/api";
-
-const MarkdownView = dynamic(
-  () => import("@/components/shared/markdown-view").then((m) => m.MarkdownView),
-  { loading: () => <Skeleton className="h-12 w-full" /> },
-);
 
 function Part({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -65,7 +59,7 @@ export function ProgramScopeCard({ program }: { program: Program }) {
       </Part>
       {rules && (
         <Part title="Rules">
-          <MarkdownView source={rules} />
+          <LazyMarkdownView source={rules} />
         </Part>
       )}
       <Part title="Rewards">

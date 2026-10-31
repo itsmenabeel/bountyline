@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ProgramDirectory } from "@/features/programs/components/program-directory";
 import { ProgramDirectorySkeleton } from "@/features/programs/components/program-skeletons";
@@ -6,13 +5,15 @@ import { directoryParams } from "@/features/programs/params";
 import { directoryQuery } from "@/features/programs/queries";
 import { publicRequest } from "@/lib/api/public";
 import { parseListParams } from "@/lib/list-params";
+import { pageMetadata } from "@/lib/metadata";
 import { HydrateClient, prefetch } from "@/lib/query/server";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Programs",
   description:
     "Active bug bounty programs on Bountyline, with each program's pool, rewards, and scope.",
-};
+  path: "/programs",
+});
 
 /** Reads the URL, so it renders at request time inside the page's Suspense boundary. */
 async function Directory({ searchParams }: PageProps<"/programs">) {

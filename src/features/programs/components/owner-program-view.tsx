@@ -1,17 +1,31 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 import { useState } from "react";
+import { LazyMarkdownView } from "@/components/shared/lazy-markdown-view";
 import { PendingLabel } from "@/components/shared/pending-label";
 import { QueryError } from "@/components/shared/query-error";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FundDialog } from "@/features/payments/components/fund-dialog";
-import { ProgramPayments } from "@/features/payments/components/payment-table";
 import { clientQuery } from "@/lib/query/descriptor";
 import type { OwnerProgramTab } from "../owner-tabs";
 import { programDetailQuery } from "../queries";
-import { ProgramHeader, ProgramOverview } from "./program-detail";
-import { ProgramSettings } from "./program-settings";
+import { ProgramHeader, ProgramOverview } from "./program-overview";
+
+// Most visits stop at Overview, so the table and the settings forms load with their tabs.
+const ProgramPayments = dynamic(
+  () =>
+    import("@/features/payments/components/payment-table").then(
+      (m) => m.ProgramPayments,
+    ),
+  { loading: () => <Skeleton className="h-64 w-full" /> },
+);
+const ProgramSettings = dynamic(
+  () => import("./program-settings").then((m) => m.ProgramSettings),
+  { loading: () => <Skeleton className="h-96 w-full" /> },
+);
 
 /** Writes the tab into the URL without a server round trip; Overview is the default. */
 function writeTab(tab: OwnerProgramTab) {
@@ -93,6 +107,7 @@ export function OwnerProgramView({
             action={
               program.status !== "CLOSED" && <FundDialog program={program} />
             }
+            Markdown={LazyMarkdownView}
           />
         </TabsContent>
         <TabsContent value="payments">

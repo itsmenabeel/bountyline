@@ -7,16 +7,15 @@ import {
   CircleXIcon,
   Loader2Icon,
 } from "lucide-react";
-import dynamic from "next/dynamic";
 import { type ReactNode, useRef, useState } from "react";
 import { toast } from "sonner";
 import { type Failure, FailureAlert } from "@/components/shared/failure-alert";
+import { LazyMarkdownView } from "@/components/shared/lazy-markdown-view";
 import { Money } from "@/components/shared/money";
 import { PendingLabel } from "@/components/shared/pending-label";
 import { SeverityBadge } from "@/components/shared/severity-badge";
 import { WizardActions } from "@/components/shared/wizard-shell";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { clientRequest } from "@/lib/api/client";
 import type { Program, RewardTier } from "@/types/api";
 import {
@@ -28,11 +27,6 @@ import {
 } from "../create-program";
 import { programKeys } from "../queries";
 import type { CreateProgramRequest } from "../schemas";
-
-const MarkdownView = dynamic(
-  () => import("@/components/shared/markdown-view").then((m) => m.MarkdownView),
-  { loading: () => <Skeleton className="h-16 w-full" /> },
-);
 
 const STAGE_LABEL: Record<CreateStage, string> = {
   create: "Create the program",
@@ -211,7 +205,7 @@ export function ProgramReviewStep({
         </Item>
         <Item term="Description">
           <div className="max-h-72 overflow-y-auto">
-            <MarkdownView source={program.description} />
+            <LazyMarkdownView source={program.description} />
           </div>
         </Item>
       </ReviewSection>
@@ -229,7 +223,7 @@ export function ProgramReviewStep({
         </Item>
         <Item term="Rules">
           {rules ? (
-            <MarkdownView source={rules} />
+            <LazyMarkdownView source={rules} />
           ) : (
             <span className="text-muted-foreground">No rules added.</span>
           )}

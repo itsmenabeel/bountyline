@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Accordion,
@@ -7,12 +6,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { PageIntro } from "@/features/marketing/components/page-intro";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "FAQ",
   description:
     "Answers for researchers and program owners: funding limits, editing reports, payouts, reputation, and Stripe test mode.",
-};
+  path: "/faq",
+});
 
 interface Question {
   id: string;

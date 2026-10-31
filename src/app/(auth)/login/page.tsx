@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
 import { LoginPanel } from "@/features/auth/components/login-panel";
 import { serverEnv } from "@/lib/env/server";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Sign in",
   description:
     "Sign in to Bountyline, or open a demo account as an admin, researcher, or program owner.",
-};
+  path: "/login",
+});
 
 export default function LoginPage() {
   // Demo emails are shown on the cards; the passwords never leave the server.

@@ -1,25 +1,19 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import dynamic from "next/dynamic";
 import { type ReactNode, useRef, useState } from "react";
 import { toast } from "sonner";
 import { type Failure, FailureAlert } from "@/components/shared/failure-alert";
+import { LazyMarkdownView } from "@/components/shared/lazy-markdown-view";
 import { PendingLabel } from "@/components/shared/pending-label";
 import { WizardActions } from "@/components/shared/wizard-shell";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { clientRequest } from "@/lib/api/client";
 import type { ApiError } from "@/lib/api/errors";
 import type { Program, Report } from "@/types/api";
 import { reportEndpoints } from "../endpoints";
 import { reportKeys } from "../queries";
 import type { ReportWriteupInput } from "../schemas";
-
-const MarkdownView = dynamic(
-  () => import("@/components/shared/markdown-view").then((m) => m.MarkdownView),
-  { loading: () => <Skeleton className="h-24 w-full" /> },
-);
 
 /** The submit failures a researcher can act on, in words; the rest use the API's message. */
 function failureMessage(error: ApiError) {
@@ -146,7 +140,7 @@ export function ReportReviewStep({
           <div className="flex flex-col gap-1.5">
             <dt className="text-muted-foreground">Write-up</dt>
             <dd className="min-w-0">
-              <MarkdownView source={writeup.description} />
+              <LazyMarkdownView source={writeup.description} />
             </dd>
           </div>
         </dl>

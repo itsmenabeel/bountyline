@@ -7,6 +7,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { ROLE_WORKSPACES } from "@/lib/nav";
 import { useUiStore } from "@/stores/ui-store";
 import type { Role } from "@/types/api";
@@ -35,28 +36,31 @@ export function DashboardShell({
   }, []);
 
   return (
-    <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
-      <AppSidebar workspace={workspace} />
-      <SidebarInset>
-        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b bg-background/85 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/70 md:px-6">
-          <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-1 data-vertical:h-5 data-vertical:self-center"
-          />
-          <span className="font-mono text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            {ROLE_WORKSPACES[workspace].label}
-          </span>
-          <div className="ml-auto flex items-center gap-1">{userMenu}</div>
-        </header>
-        <main
-          id="main-content"
-          tabIndex={-1}
-          className="mx-auto flex w-full max-w-dashboard flex-1 flex-col gap-6 px-4 py-6 outline-none md:px-6 lg:px-8"
-        >
-          {children}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    // Every tooltip lives in the dashboard, so public pages don't load the tooltip code.
+    <TooltipProvider>
+      <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
+        <AppSidebar workspace={workspace} />
+        <SidebarInset>
+          <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b bg-background/85 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/70 md:px-6">
+            <SidebarTrigger className="-ml-1" />
+            <Separator
+              orientation="vertical"
+              className="mr-1 data-vertical:h-5 data-vertical:self-center"
+            />
+            <span className="font-mono text-xs font-medium tracking-wide text-muted-foreground uppercase">
+              {ROLE_WORKSPACES[workspace].label}
+            </span>
+            <div className="ml-auto flex items-center gap-1">{userMenu}</div>
+          </header>
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="mx-auto flex w-full max-w-dashboard flex-1 flex-col gap-6 px-4 py-6 outline-none md:px-6 lg:px-8"
+          >
+            {children}
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
+    </TooltipProvider>
   );
 }

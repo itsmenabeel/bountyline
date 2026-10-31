@@ -1,16 +1,17 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { CopyButton } from "@/components/shared/copy-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ContactForm } from "@/features/contact/components/contact-form";
 import { PageIntro } from "@/features/marketing/components/page-intro";
 import { publicEnv } from "@/lib/env/public";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Contact",
   description:
     "Write to the Bountyline team about a program, a report, a payment, or your account.",
-};
+  path: "/contact",
+});
 
 export default function ContactPage() {
   const to = publicEnv.NEXT_PUBLIC_CONTACT_EMAIL;

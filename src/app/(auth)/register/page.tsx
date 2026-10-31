@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
 import { RegisterForm } from "@/features/auth/components/register-form";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Create an account",
   description:
     "Create a Bountyline account to report vulnerabilities or run a bug bounty program.",
-};
+  path: "/register",
+});
 
 export default function RegisterPage() {
   return (

@@ -1,17 +1,10 @@
 "use client";
 
 import { cn } from "cn";
-import dynamic from "next/dynamic";
 import type { ComponentProps, ReactNode } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { LazyMarkdownView } from "@/components/shared/lazy-markdown-view";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-
-// The preview pulls in the Markdown renderer, so it loads only when someone opens the tab.
-const MarkdownView = dynamic(
-  () => import("@/components/shared/markdown-view").then((m) => m.MarkdownView),
-  { loading: () => <Skeleton className="h-24 w-full" /> },
-);
 
 export type MarkdownTab = "write" | "preview";
 
@@ -64,7 +57,7 @@ export function MarkdownEditor({
         className="min-h-40 rounded-lg border bg-card p-4"
       >
         {value.trim() ? (
-          <MarkdownView source={value} />
+          <LazyMarkdownView source={value} />
         ) : (
           <p className="text-sm text-muted-foreground">
             Nothing to preview yet.

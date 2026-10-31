@@ -1,6 +1,8 @@
 // Site-wide names and navigation, shared by the header, footer, and metadata.
 
 export const SITE_NAME = "Bountyline";
+export const SITE_DESCRIPTION =
+  "Bug reports, triaged and paid from one funded pool.";
 
 export interface NavItem {
   label: string;

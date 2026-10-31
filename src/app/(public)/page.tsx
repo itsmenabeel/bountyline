@@ -1,5 +1,4 @@
 import { ArrowRight, Coins, ScanSearch } from "lucide-react";
-import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
@@ -12,11 +11,13 @@ import {
   PlatformStatsSkeleton,
 } from "@/features/marketing/components/platform-stats";
 import { ReportFlow } from "@/features/marketing/components/report-flow";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   description:
     "Companies fund a bounty pool through Stripe. Researchers report what they find, and our triage team pays valid reports from that pool.",
-};
+  path: "/",
+});
 
 const AUDIENCES = [
   {

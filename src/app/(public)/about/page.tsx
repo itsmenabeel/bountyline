@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro } from "@/features/marketing/components/page-intro";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "About",
   description:
     "The rules Bountyline runs on: who pays, who triages, and how money moves from Stripe to a researcher's wallet.",
-};
+  path: "/about",
+});
 
 const SECTIONS = [
   {

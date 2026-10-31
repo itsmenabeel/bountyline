@@ -13,6 +13,7 @@ import { publicRequest } from "@/lib/api/public";
 import { getVisitor } from "@/lib/auth/visitor";
 import { plainExcerpt } from "@/lib/format";
 import { isUuid } from "@/lib/ids";
+import { pageMetadata } from "@/lib/metadata";
 
 async function loadProgram(id: string) {
   if (!isUuid(id)) notFound();
@@ -24,11 +25,12 @@ export async function generateMetadata({
 }: PageProps<"/programs/[id]">): Promise<Metadata> {
   const program = await loadProgram((await params).id);
   const excerpt = plainExcerpt(program.description);
-  return {
+  return pageMetadata({
     title: program.title,
     description:
       excerpt.length > 160 ? `${excerpt.slice(0, 157).trimEnd()}…` : excerpt,
-  };
+    path: `/programs/${program.id}`,
+  });
 }
 
 /**
